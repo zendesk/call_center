@@ -131,3 +131,8 @@ Benefits of **CallCenter** is that it's backed by [state_machine](https://github
     Call.state_machines[:status].draw(:font => 'Helvetica Neue')
     # OR
     @call.draw_call_flow(:font => 'Helvetica Neue')
+
+Future
+------
+
+* Integrate making new calls into the **CallFlow** DSL
