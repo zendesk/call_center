@@ -1,0 +1,5 @@
+infinity_test do
+  before_run do
+    clear :terminal
+  end
+end
