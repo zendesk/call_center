@@ -52,6 +52,13 @@ Usage
       end
     end
 
+Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Which means you can interact with events the same you do in state_machine.
+
+    @call.incoming_call!
+    @call.voicemail?
+    @call.sales?
+    @call.render # See Rendering
+
 Flow
 ----
 
@@ -126,7 +133,7 @@ Tools
 
 ### Drawing ###
 
-Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Should you be interested in what your call center workflow looks like, you can draw.
+Should you be interested in what your call center workflow looks like, you can draw.
 
     Call.state_machines[:status].draw(:font => 'Helvetica Neue')
     # OR
