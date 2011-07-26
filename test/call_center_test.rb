@@ -2,6 +2,7 @@ require 'helper'
 
 require 'test/examples/legacy_call'
 require 'test/examples/call'
+require 'test/examples/non_standard_call'
 
 class CallCenterTest < Test::Unit::TestCase
   [:call, :legacy_call].each do |call_type|
@@ -17,7 +18,6 @@ class CallCenterTest < Test::Unit::TestCase
         end
 
         should "transition to routing" do
-          @call.expects(:routing)
           @call.incoming_call!
           assert_equal 'routing', @call.state
         end
@@ -29,7 +29,6 @@ class CallCenterTest < Test::Unit::TestCase
         end
 
         should "transition to voicemail" do
-          @call.expects(:voicemail)
           @call.incoming_call!
           assert_equal 'voicemail', @call.state
         end
@@ -43,7 +42,6 @@ class CallCenterTest < Test::Unit::TestCase
 
         context "and customer hangs up" do
           should "transition to voicemail_completed" do
-            @call.expects(:voicemail_completed)
             @call.customer_hangs_up!
             assert @call.voicemail_completed?
           end
@@ -123,6 +121,18 @@ class CallCenterTest < Test::Unit::TestCase
     should "draw state machine digraph" do
       Call.state_machines[:state].expects(:draw).with(:name => 'call_workflow', :font => 'Helvetica Neue')
       @call.draw_call_flow(:name => 'call_workflow', :font => 'Helvetica Neue')
+    end
+  end
+
+  context "non-standard call" do
+    setup do
+      @call = NonStandardCall.new
+    end
+
+    should "render xml for initial state" do
+      assert_equal 'ready', @call.status
+      body @call.render
+      assert_select "Response>Say", "Hello World"
     end
   end
 end

@@ -1,21 +1,22 @@
 require 'call_center/core_ext/object_instance_exec'
 require 'state_machine'
+require 'call_center/state_machine_ext'
 
 module CallCenter
-  autoload :WorkflowReader, 'call_center/evaluator/workflow_reader'
-  autoload :WorkflowEvaluator, 'call_center/evaluator/workflow_evaluator'
-  autoload :WorkflowTransition, 'call_center/evaluator/workflow_transition'
-
   def self.included(base)
     base.send(:include, InstanceMethods)
     base.extend(ClassMethods)
   end
 
   module ClassMethods
+    attr_accessor :call_flow_state_machine_name
+
+    # Calls state_machine ... with :syntax => :alternate
     def call_flow(*args, &blk)
-      reader = WorkflowReader.new(*args, &blk)
-      evaluator = WorkflowEvaluator.new(self, reader)
-      evaluator.evaluate!
+      options = args.last.is_a?(Hash) ? args.pop : {}
+      args << options.merge(:syntax => :alternate)
+      state_machine = state_machine(*args, &blk)
+      self.call_flow_state_machine_name = state_machine.name
     end
   end
 
@@ -38,13 +39,14 @@ module CallCenter
     private
 
     def current_render_block
-      render_blocks, name = self.class.call_flow_render_block_info
-      render_blocks[send(name).to_sym]
+      csm = current_state_machine
+      render_blocks, name = csm.render_blocks, csm.name
+      render_blocks[send(name).to_sym] if render_blocks
     end
 
     def current_state_machine
       klass = self.class
-      klass.state_machines[klass.call_flow_machine_name]
+      klass.state_machines[klass.call_flow_state_machine_name]
     end
 
     def method_missing(*args, &blk)
