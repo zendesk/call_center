@@ -13,8 +13,12 @@ module CallCenter
   end
   self.cached_state_machines ||= {}
 
-  def self.cache(klass)
-    self.cached_state_machines[klass.name] ||= klass.current_state_machine
+  def self.cache(klass, state_machine)
+    self.cached_state_machines["#{klass.name}_#{state_machine.name}"] ||= state_machine
+  end
+
+  def self.cached(klass, state_machine_name)
+    self.cached_state_machines["#{klass.name}_#{state_machine_name}"]
   end
 
   module ClassMethods
@@ -24,14 +28,14 @@ module CallCenter
     def call_flow(*args, &blk)
       options = args.last.is_a?(Hash) ? args.pop : {}
       args << options.merge(:syntax => :alternate)
-      if !defined?(state_machines) && state_machine = CallCenter.cached_state_machines[self.name]
+      state_machine_name = args.first || :state
+      if state_machine = CallCenter.cached(self, state_machine_name)
         state_machine = state_machine.duplicate_to(self)
-        self.call_flow_state_machine_name = state_machine.name
       else
         state_machine = state_machine(*args, &blk)
-        self.call_flow_state_machine_name = state_machine.name
-        CallCenter.cache(self)
+        CallCenter.cache(self, state_machine)
       end
+      self.call_flow_state_machine_name ||= state_machine.name
       state_machine
     end
 
@@ -41,9 +45,9 @@ module CallCenter
   end
 
   module InstanceMethods
-    def render
+    def render(state_machine_name = self.class.call_flow_state_machine_name)
       xml = Builder::XmlMarkup.new
-      render_block = current_render_block
+      render_block = current_render_block(state_machine_name)
 
       xml.instruct!
       xml.Response do
@@ -58,10 +62,10 @@ module CallCenter
 
     private
 
-    def current_render_block
-      csm = current_state_machine
+    def current_render_block(state_machine_name)
+      csm = self.class.state_machines[state_machine_name]
       render_blocks, name = csm.render_blocks, csm.name
-      render_blocks[send(name).to_sym] if render_blocks
+      render_blocks[send(state_machine_name).to_sym] if render_blocks
     end
 
     def current_state_machine

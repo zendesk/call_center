@@ -3,6 +3,7 @@ require 'helper'
 require 'test/examples/legacy_call'
 require 'test/examples/call'
 require 'test/examples/non_standard_call'
+require 'test/examples/multiple_flow_call'
 
 class CallCenterTest < Test::Unit::TestCase
   [:call, :legacy_call].each do |call_type|
@@ -137,17 +138,6 @@ class CallCenterTest < Test::Unit::TestCase
   end
 
   context "cache call" do
-    setup do
-      NonStandardCall.class_eval do
-        call_flow :status, :initial => :ready do
-          state :ready do
-            event :go, :to => :done
-          end
-        end
-      end
-
-    end
-
     should "re-apply state machine and render xml for initial state" do
       Object.send(:remove_const, :NonStandardCall)
       Object.const_set(:NonStandardCall, Class.new)
@@ -164,6 +154,34 @@ class CallCenterTest < Test::Unit::TestCase
       body @call.render
       assert_select "Response>Say", "Hello World"
       assert @call.go!
+    end
+  end
+
+  context "cache multiple call flows" do
+    should "re-apply state machine and render xml for initial state" do
+      Object.send(:remove_const, :MultipleFlowCall)
+      Object.const_set(:MultipleFlowCall, Class.new)
+      MultipleFlowCall.class_eval do
+        include CallCenter
+        call_flow :status, :initial => :ready do
+          raise Exception, "Should not be called"
+        end
+        call_flow :outgoing_status, :initial => :outgoing_ready do
+          raise Exception, "Should not be called"
+        end
+      end
+
+      @call = MultipleFlowCall.new
+
+      assert_equal 'ready', @call.status
+      body @call.render
+      assert_select "Response>Say", "Hello World"
+      assert @call.go!
+
+      assert_equal 'outgoing_ready', @call.outgoing_status
+      body @call.render(:outgoing_status)
+      assert_select "Response>Say", "Hello Outgoing World"
+      assert @call.outgoing_go!
     end
   end
 end
