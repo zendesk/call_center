@@ -135,4 +135,35 @@ class CallCenterTest < Test::Unit::TestCase
       assert_select "Response>Say", "Hello World"
     end
   end
+
+  context "cache call" do
+    setup do
+      NonStandardCall.class_eval do
+        call_flow :status, :initial => :ready do
+          state :ready do
+            event :go, :to => :done
+          end
+        end
+      end
+
+    end
+
+    should "re-apply state machine and render xml for initial state" do
+      Object.send(:remove_const, :NonStandardCall)
+      Object.const_set(:NonStandardCall, Class.new)
+      NonStandardCall.class_eval do
+        include CallCenter
+        call_flow :status, :initial => :ready do
+          raise Exception, "Should not be called"
+        end
+      end
+
+      @call = NonStandardCall.new
+
+      assert_equal 'ready', @call.status
+      body @call.render
+      assert_select "Response>Say", "Hello World"
+      assert @call.go!
+    end
+  end
 end

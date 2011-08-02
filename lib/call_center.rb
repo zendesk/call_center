@@ -8,6 +8,15 @@ module CallCenter
     base.extend(ClassMethods)
   end
 
+  class << self
+    attr_accessor :cached_state_machines
+  end
+  self.cached_state_machines ||= {}
+
+  def self.cache(klass)
+    self.cached_state_machines[klass.name] ||= klass.current_state_machine
+  end
+
   module ClassMethods
     attr_accessor :call_flow_state_machine_name
 
@@ -15,8 +24,19 @@ module CallCenter
     def call_flow(*args, &blk)
       options = args.last.is_a?(Hash) ? args.pop : {}
       args << options.merge(:syntax => :alternate)
-      state_machine = state_machine(*args, &blk)
-      self.call_flow_state_machine_name = state_machine.name
+      if !defined?(state_machines) && state_machine = CallCenter.cached_state_machines[self.name]
+        state_machine = state_machine.duplicate_to(self)
+        self.call_flow_state_machine_name = state_machine.name
+      else
+        state_machine = state_machine(*args, &blk)
+        self.call_flow_state_machine_name = state_machine.name
+        CallCenter.cache(self)
+      end
+      state_machine
+    end
+
+    def current_state_machine
+      self.state_machines[self.call_flow_state_machine_name]
     end
   end
 
@@ -45,8 +65,7 @@ module CallCenter
     end
 
     def current_state_machine
-      klass = self.class
-      klass.state_machines[klass.call_flow_state_machine_name]
+      self.class.current_state_machine
     end
 
     def method_missing(*args, &blk)

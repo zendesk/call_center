@@ -12,4 +12,4 @@ group :development do
 end
 
 gem 'builder'
-gem 'hsume2-state_machine', '~> 1.0.3', :require => 'state_machine'
+gem 'hsume2-state_machine', '~> 1.0.4', :require => 'state_machine'

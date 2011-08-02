@@ -7,7 +7,7 @@ GEM
     activesupport (2.3.12)
     builder (3.0.0)
     git (1.2.5)
-    hsume2-state_machine (1.0.3)
+    hsume2-state_machine (1.0.4)
     infinity_test (1.0.3)
       notifiers (>= 1.1.0)
       watchr (>= 0.7)
@@ -31,7 +31,7 @@ DEPENDENCIES
   actionpack (~> 2.3.10)
   builder
   bundler (~> 1.0.0)
-  hsume2-state_machine (~> 1.0.3)
+  hsume2-state_machine (~> 1.0.4)
   infinity_test
   jeweler (~> 1.6.4)
   mocha
