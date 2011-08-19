@@ -49,6 +49,10 @@ Usage
         on_render(:voicemail) do |call, x|
           x.Say "Leave a voicemail!"
         end
+
+        on_flow_to(:voicemail) do |call, transition|
+          call.notify(:voicemail)
+        end
       end
     end
 
@@ -93,6 +97,16 @@ Renders:
     <Response>
       <Say>This is Sales!</Say>
     </Response>
+
+Callbacks
+---------
+
+If you ever want to do something special after entering a state, but only if it's a new transition (e.g. NOT from :voicemail => :voicemail), you can do this:
+
+    on_flow_to(:voicemail) do |the_call, the_transition|
+      the_call.notify(transition.event) # Explicitly
+      notify(transition.event) # Implicitly
+    end
 
 Redirects
 ---------
