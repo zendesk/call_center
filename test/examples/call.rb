@@ -38,5 +38,9 @@ class Call
       x.Say "Hello World"
       x.Record :action => flow_url(:voicemail_complete)
     end
+
+    on_flow_to(:cancelled) do |call, transition|
+      notify(:cancelled)
+    end
   end
 end

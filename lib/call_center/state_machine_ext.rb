@@ -1,10 +1,16 @@
 # Extension for StateMachine::Machine to store and provide render blocks
 class StateMachine::Machine
   attr_accessor :render_blocks
+  attr_accessor :flow_to_blocks
 
   def on_render(state_name, &blk)
     @render_blocks ||= {}
     @render_blocks[state_name] = blk
+  end
+
+  def on_flow_to(state_name, &blk)
+    @flow_to_blocks ||= {}
+    @flow_to_blocks[state_name] = blk
   end
 end
 

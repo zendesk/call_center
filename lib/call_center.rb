@@ -33,6 +33,11 @@ module CallCenter
         state_machine = state_machine.duplicate_to(self)
       else
         state_machine = state_machine(*args, &blk)
+        state_machine.instance_eval do
+          after_transition any => any do |call, transition|
+            call.flow_to(transition) if transition.from_name != transition.to_name
+          end
+        end
         CallCenter.cache(self, state_machine)
       end
       self.call_flow_state_machine_name ||= state_machine.name
@@ -47,7 +52,7 @@ module CallCenter
   module InstanceMethods
     def render(state_machine_name = self.class.call_flow_state_machine_name)
       xml = Builder::XmlMarkup.new
-      render_block = current_render_block(state_machine_name)
+      render_block = current_block_accessor(:render_blocks, state_machine_name)
 
       xml.instruct!
       xml.Response do
@@ -56,20 +61,29 @@ module CallCenter
       xml.target!
     end
 
+    def flow_to(transition, state_machine_name = self.class.call_flow_state_machine_name)
+      block = current_block_accessor(:flow_to_blocks, state_machine_name)
+      self.instance_exec(self, transition, &block) if block
+    end
+
     def draw_call_flow(*args)
       current_state_machine.draw(*args)
     end
 
     private
 
-    def current_render_block(state_machine_name)
+    def current_block_accessor(accessor, state_machine_name)
       csm = self.class.state_machines[state_machine_name]
-      render_blocks, name = csm.render_blocks, csm.name
-      render_blocks[send(state_machine_name).to_sym] if render_blocks
+      blocks, name = csm.send(accessor), csm.name
+      blocks[current_flow_state(state_machine_name)] if blocks
     end
 
     def current_state_machine
       self.class.current_state_machine
+    end
+
+    def current_flow_state(state_machine_name)
+      send(state_machine_name).to_sym
     end
 
     def method_missing(*args, &blk)

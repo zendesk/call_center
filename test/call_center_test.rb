@@ -97,6 +97,17 @@ class CallCenterTest < Test::Unit::TestCase
       assert_select "Response"
     end
 
+    should "respond when flow to state (once)" do
+      @call.state = 'routing'
+      @call.expects(:notify).with(:cancelled).once
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+    end
+
     should "asynchronously perform event" do
       @call.stubs(:agents_available?).returns(true)
       @call.incoming_call!
