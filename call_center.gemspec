@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{call_center}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
@@ -18,10 +18,10 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".document",
-    ".infinity_test",
     ".rvmrc",
     "Gemfile",
     "Gemfile.lock",
+    "Guardfile",
     "LICENSE.txt",
     "README.md",
     "Rakefile",
@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
     "lib/call_center.rb",
     "lib/call_center/core_ext/object_instance_exec.rb",
     "lib/call_center/state_machine_ext.rb",
+    "lib/call_center/test/dsl.rb",
     "test/call_center_test.rb",
     "test/core_ext_test.rb",
     "test/examples/call.rb",
@@ -56,9 +57,12 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_development_dependency(%q<test-unit>, [">= 0"])
-      s.add_development_dependency(%q<infinity_test>, [">= 0"])
+      s.add_development_dependency(%q<guard>, [">= 0"])
+      s.add_development_dependency(%q<guard-test>, [">= 0"])
       s.add_development_dependency(%q<actionpack>, ["~> 2.3.10"])
       s.add_development_dependency(%q<mocha>, [">= 0"])
+      s.add_development_dependency(%q<bourne>, [">= 0"])
+      s.add_development_dependency(%q<pre-commit>, [">= 0"])
     else
       s.add_dependency(%q<builder>, [">= 0"])
       s.add_dependency(%q<hsume2-state_machine>, ["~> 1.0.5"])
@@ -67,9 +71,12 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<test-unit>, [">= 0"])
-      s.add_dependency(%q<infinity_test>, [">= 0"])
+      s.add_dependency(%q<guard>, [">= 0"])
+      s.add_dependency(%q<guard-test>, [">= 0"])
       s.add_dependency(%q<actionpack>, ["~> 2.3.10"])
       s.add_dependency(%q<mocha>, [">= 0"])
+      s.add_dependency(%q<bourne>, [">= 0"])
+      s.add_dependency(%q<pre-commit>, [">= 0"])
     end
   else
     s.add_dependency(%q<builder>, [">= 0"])
@@ -79,9 +86,12 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<test-unit>, [">= 0"])
-    s.add_dependency(%q<infinity_test>, [">= 0"])
+    s.add_dependency(%q<guard>, [">= 0"])
+    s.add_dependency(%q<guard-test>, [">= 0"])
     s.add_dependency(%q<actionpack>, ["~> 2.3.10"])
     s.add_dependency(%q<mocha>, [">= 0"])
+    s.add_dependency(%q<bourne>, [">= 0"])
+    s.add_dependency(%q<pre-commit>, [">= 0"])
   end
 end
 
