@@ -11,6 +11,7 @@ group :development do
   gem 'actionpack', '~> 2.3.10'
   gem 'mocha'
   gem 'bourne'
+  gem 'pre-commit'
 end
 
 gem 'builder'
