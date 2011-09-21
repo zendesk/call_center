@@ -6,9 +6,11 @@ group :development do
   gem 'jeweler', '~> 1.6.4'
   gem 'rcov', '>= 0'
   gem 'test-unit', :require => 'test/unit'
-  gem 'infinity_test'
+  gem 'guard'
+  gem 'guard-test'
   gem 'actionpack', '~> 2.3.10'
   gem 'mocha'
+  gem 'bourne'
 end
 
 gem 'builder'

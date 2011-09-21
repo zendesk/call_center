@@ -74,6 +74,7 @@ module CallCenter
 
     def current_block_accessor(accessor, state_machine_name)
       csm = self.class.state_machines[state_machine_name]
+      return unless csm.respond_to?(accessor)
       blocks, name = csm.send(accessor), csm.name
       blocks[current_flow_state(state_machine_name)] if blocks
     end

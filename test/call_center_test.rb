@@ -1,16 +1,22 @@
 require 'helper'
 
+require 'call_center/test/dsl'
+
 require 'test/examples/legacy_call'
 require 'test/examples/call'
 require 'test/examples/non_standard_call'
 require 'test/examples/multiple_flow_call'
 
 class CallCenterTest < Test::Unit::TestCase
+  include CallCenter::Test::DSL
+
   [:call, :legacy_call].each do |call_type|
     context "#{call_type.to_s.gsub('_', ' ')} workflow" do
       setup do
         klass = call_type.to_s.gsub('_', ' ').titleize.gsub(' ', '').constantize
         @call = klass.new
+        @call.stubs(:notify)
+        @call.stubs(:flow_url).returns('the_flow')
       end
 
       context "agents available" do
@@ -58,10 +64,31 @@ class CallCenterTest < Test::Unit::TestCase
 
       context "cancelled" do
         should "stay in cancelled" do
+          @call.stubs(:cancelled)
           @call.state = 'cancelled'
-          @call.expects(:cancelled).never
+
           @call.customer_hangs_up!
+
           assert @call.cancelled?
+          assert_received(@call, :cancelled) { |e| e.never }
+        end
+      end
+
+      context "using test DSL:" do
+        should_flow :on => :incoming_call, :initial => :routing, :when => Proc.new {
+          @call.stubs(:agents_available?).returns(true)
+        }
+
+        should_flow :on => :incoming_call, :initial => :voicemail, :when => Proc.new {
+          @call.stubs(:agents_available?).returns(false)
+        } do
+          should_flow :on => :customer_hangs_up, :voicemail => :voicemail_completed
+        end
+
+        should_flow :on => :something_crazy_happens, :initial => :uh_oh
+
+        should_flow :on => :customer_hangs_up, :cancelled => :cancelled do
+          should_also { assert_received(@call, :cancelled) { |e| e.never } }
         end
       end
     end
@@ -133,6 +160,42 @@ class CallCenterTest < Test::Unit::TestCase
     should "draw state machine digraph" do
       Call.state_machines[:state].expects(:draw).with(:name => 'call_workflow', :font => 'Helvetica Neue')
       @call.draw_call_flow(:name => 'call_workflow', :font => 'Helvetica Neue')
+    end
+
+    context "using test DSL:" do
+      should_flow :on => :incoming_call, :initial => :voicemail, :when => Proc.new {
+        @call.stubs(:agents_available?).returns(false)
+        @call.stubs(:notify)
+        @call.stubs(:flow_url).returns('the_flow')
+      } do
+        should_also { assert_received(@call, :notify) { |e| e.with(:rendering_voicemail) } }
+        and_also { assert_received(@call, :flow_url) { |e| e.with(:voicemail_complete) } }
+        and_render { "Response>Say" }
+        and_render { "Response>Record[action=the_flow]" }
+      end
+
+      should_flow :on => :incoming_call, :initial => :routing, :when => Proc.new {
+        @call.stubs(:agents_available?).returns(true)
+      } do
+        should_render { "Response" }
+      end
+
+      should_flow :on => :customer_hangs_up, :routing => :cancelled, :when => Proc.new {
+        @call.stubs(:notify)
+      } do
+        should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } }
+        and_also { assert @call.cancelled? }
+
+        should_flow :on => :customer_hangs_up, :cancelled => :cancelled do
+          should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } } # For above
+          and_also { assert @call.cancelled? }
+
+          should_flow :on => :customer_hangs_up, :cancelled => :cancelled do
+            should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } } # For above
+            and_also { assert @call.cancelled? }
+          end
+        end
+      end
     end
   end
 
