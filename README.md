@@ -20,7 +20,7 @@ Terminology
 -----------
 
 * **Call** - An application resource of yours that encapsulates a phone call. Phone calls are then acted on: answered, transferred, declined, etc.
-* **Event** - Is something that happens outside or inside your application in relation to a **Call**. Someone picks up, hangs up, presses a button, etc.
+* **Event** - Is something that happens outside or inside your application in relation to a **Call**. Someone picks up, hangs up, presses a button, etc. But overall, it's anything that can be triggered by Twilio callbacks.
 * **State** - Is the status a **Call** is in which is descriptive of what's happened so far and what are the next things that should happen. (e.g. a call on hold is waiting for the agent to return)
 * **CallFlow** - Is a definition of the process a **Call** goes through. **Events** drive the flow between **States**. (e.g. a simple workflow is when noone answers the call, send the call to voicemail)
 * **Render** - Is the ability of the **CallFlow** to return TwiML to bring the call into the **State** or modify the live call through a **Redirect**.
@@ -56,7 +56,7 @@ Usage
       end
     end
 
-Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Which means you can interact with events the same you do in state_machine.
+Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Which means you can interact with events the same you do in `state_machine`.
 
     @call.incoming_call!
     @call.voicemail?
@@ -79,6 +79,18 @@ The general application flow for a **CallFlow** is like this:
    * You respond by rendering TwiML. Your TwiML contains callbacks to events or redirects
 3. Repeat 2.
 
+In order to DRY up the callbacks, it is best to have use standardized callback URLs. A handy concept is the `flow_url`, which follows the pattern:
+
+    http://domain.com/calls/flow?call_id=?&event=?
+
+By handling this in your controller, you can immediately retrieve the **Call** from persistence, run an event on the call, and return the rendered TwiML. Here's an example:
+
+    def flow
+      render :xml => @call.run(params[:event])
+    end
+
+For an in-depth example, take a look at [call_roulette](https://github.com/zendesk/call_roulette).
+
 Rendering
 ---------
 
@@ -86,12 +98,12 @@ Rendering is your way of interacting with Twilio. Thus, it provides two faciliti
 
     on_render(:sales) do |the_call, xml_builder|
       xml_builder.Say "This is Sales!"
-      
+
       the_call.flag! # You can access the call explicitly
       flag!          # Or access it implicitly
     end
 
-Renders:
+Renders with `@call.render` if the current state is :sales:
 
     <?xml version="1.0" encoding="UTF-8"?>
     <Response>
