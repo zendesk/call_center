@@ -42,5 +42,9 @@ class Call
     on_flow_to(:cancelled) do |call, transition|
       notify(:cancelled)
     end
+
+    on_exception do |call|
+      call.state = 'voicemail_completed'
+    end
   end
 end

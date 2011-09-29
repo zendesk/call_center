@@ -258,4 +258,16 @@ class CallCenterTest < Test::Unit::TestCase
       assert @call.outgoing_go!
     end
   end
+
+  context "on exception" do
+    should "handle call exception based on heuristic" do
+      @call = Call.new
+      @call.incoming_call
+      @call.something_crazy_happens
+
+      @call.resolve
+
+      assert_equal 'voicemail_completed', @call.state
+    end
+  end
 end

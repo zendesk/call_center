@@ -2,6 +2,7 @@
 class StateMachine::Machine
   attr_accessor :render_blocks
   attr_accessor :flow_to_blocks
+  attr_accessor :exception_blocks
 
   def on_render(state_name, &blk)
     @render_blocks ||= {}
@@ -11,6 +12,11 @@ class StateMachine::Machine
   def on_flow_to(state_name, &blk)
     @flow_to_blocks ||= {}
     @flow_to_blocks[state_name] = blk
+  end
+
+  def on_exception(&blk)
+    @exception_blocks ||= []
+    @exception_blocks << blk
   end
 end
 

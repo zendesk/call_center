@@ -70,6 +70,13 @@ module CallCenter
       current_state_machine.draw(*args)
     end
 
+    def resolve(state_machine_name = self.class.call_flow_state_machine_name)
+      csm = self.class.state_machines[state_machine_name]
+      return unless csm.respond_to?(:exception_blocks)
+      blocks = csm.send(:exception_blocks)
+      blocks.each { |blk| self.instance_exec(self, &blk) }
+    end
+
     private
 
     def current_block_accessor(accessor, state_machine_name)
