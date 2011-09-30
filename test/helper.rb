@@ -20,8 +20,6 @@ require 'active_support'
 require 'action_pack'
 require 'action_controller'
 class Test::Unit::TestCase
-  include ActionController::Assertions::SelectorAssertions
-
   def response_from_page_or_rjs
     HTML::Document.new(@body).root
   end

@@ -2,6 +2,7 @@ module CallCenter
   module Test
     module DSL
       def self.included(base)
+        base.send(:include, ActionController::Assertions::SelectorAssertions)
         base.extend(ClassMethods)
         base.class_eval do
           def response_from_page_or_rjs_with_body
@@ -21,7 +22,7 @@ module CallCenter
           event = options.delete(:on)
           setup_block = options.delete(:when)
           setup_block_line = setup_block.to_s.match(/.*@(.*):([0-9]+)>/)[2] if setup_block
-          state_field = options.delete(:state) || :state
+          state_field = self.call_center_state_field || options.delete(:state) || :state
           from, to = options.to_a.first
           description = ":#{from} => :#{to} via #{event}!#{setup_block_line.present? ? " when:#{setup_block_line}" : nil}"
           context "" do
@@ -45,6 +46,10 @@ module CallCenter
               end
             end
           end
+        end
+
+        def call_center_state_field(field = nil)
+          field.nil? ? @_call_center_state_field : (@_call_center_state_field = field)
         end
 
         def should_also(&block)
