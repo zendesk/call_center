@@ -16,7 +16,6 @@ class CallCenterTest < Test::Unit::TestCase
         klass = call_type.to_s.gsub('_', ' ').titleize.gsub(' ', '').constantize
         @call = klass.new
         @call.stubs(:notify)
-        @call.stubs(:flow_url).returns('the_flow')
       end
 
       context "agents available" do
@@ -99,21 +98,28 @@ class CallCenterTest < Test::Unit::TestCase
       @call = Call.new
     end
 
-    should  "render xml for initial state" do
+    should "render xml for initial state" do
       @call.expects(:notify).with(:rendering_initial)
       body @call.render
       assert_select "Response>Say", "Hello World"
     end
 
-    should  "render xml for voicemail state" do
+    should "return customer url for event" do
+      assert_equal("/voice/calls/flow?event=voicemail_complete&actor=customer", @call.customer(:voicemail_complete))
+    end
+
+    should "return agent url for event" do
+      assert_equal("/voice/calls/flow?event=voicemail_complete&actor=agent", @call.agent(:voicemail_complete))
+    end
+
+    should "render xml for voicemail state" do
       @call.stubs(:agents_available?).returns(false)
       @call.incoming_call!
       @call.expects(:notify).with(:rendering_voicemail)
-      @call.expects(:flow_url).with(:voicemail_complete).returns('the_flow')
 
       body @call.render
       assert_select "Response>Say"
-      assert_select "Response>Record[action=the_flow]"
+      assert_select "Response>Record[action=/voice/calls/flow?event=voicemail_complete&actor=customer]"
     end
 
     should "render noop when no render block" do
@@ -124,8 +130,23 @@ class CallCenterTest < Test::Unit::TestCase
       assert_select "Response"
     end
 
-    should "respond when flow to state (once)" do
+    should "respond before flow to state" do
       @call.state = 'routing'
+      @call.stubs(:notify).with(:cancelled)
+      @call.expects(:notify).with(:going_to_be_cancelled).once
+      @call.expects(:notify).with(:i_think).once
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+      @call.customer_hangs_up!
+      assert @call.cancelled?
+    end
+
+    should "respond after flow to state" do
+      @call.state = 'routing'
+      @call.stubs(:notify).with(:going_to_be_cancelled)
+      @call.stubs(:notify).with(:i_think)
       @call.expects(:notify).with(:cancelled).once
       @call.customer_hangs_up!
       assert @call.cancelled?
@@ -166,10 +187,10 @@ class CallCenterTest < Test::Unit::TestCase
       should_flow :on => :incoming_call, :initial => :voicemail, :when => Proc.new {
         @call.stubs(:agents_available?).returns(false)
         @call.stubs(:notify)
-        @call.stubs(:flow_url).returns('the_flow')
+        @call.stubs(:customer).returns('the_flow')
       } do
         should_also { assert_received(@call, :notify) { |e| e.with(:rendering_voicemail) } }
-        and_also { assert_received(@call, :flow_url) { |e| e.with(:voicemail_complete) } }
+        and_also { assert_received(@call, :customer) { |e| e.with(:voicemail_complete) } }
         and_render { "Response>Say" }
         and_render { "Response>Record[action=the_flow]" }
       end

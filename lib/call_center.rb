@@ -21,6 +21,15 @@ module CallCenter
     self.cached_state_machines["#{klass.name}_#{state_machine_name}"]
   end
 
+  def self.render_twiml
+    xml = Builder::XmlMarkup.new
+    xml.instruct!
+    xml.Response do
+      yield(xml)
+    end
+    xml.target!
+  end
+
   module ClassMethods
     attr_accessor :call_flow_state_machine_name
 
@@ -34,14 +43,28 @@ module CallCenter
       else
         state_machine = state_machine(*args, &blk)
         state_machine.instance_eval do
+          before_transition any => any do |call, transition|
+            call.run_blocks(:before_blocks, transition)
+          end
           after_transition any => any do |call, transition|
-            call.flow_to(transition) if transition.from_name != transition.to_name
+            call.run_blocks(:after_blocks, transition)
           end
         end
+        setup_flow_actor_blocks(state_machine)
+
         CallCenter.cache(self, state_machine)
       end
       self.call_flow_state_machine_name ||= state_machine.name
       state_machine
+    end
+
+    def setup_flow_actor_blocks(state_machine)
+      return unless state_machine.flow_actor_blocks
+      state_machine.flow_actor_blocks.each do |actor, block|
+        define_method(actor) do |event|
+          self.instance_exec(self, event, &block) if block
+        end
+      end
     end
 
     def current_state_machine
@@ -50,40 +73,35 @@ module CallCenter
   end
 
   module InstanceMethods
-    def render(state_machine_name = self.class.call_flow_state_machine_name)
-      xml = Builder::XmlMarkup.new
-      render_block = current_block_accessor(:render_blocks, state_machine_name)
-
-      xml.instruct!
-      xml.Response do
-        self.instance_exec(self, xml, &render_block) if render_block
+    def render(name = nil)
+      name ||= self.class.call_flow_state_machine_name
+      return unless name
+      CallCenter.render_twiml do |xml|
+        if render_block = state_machine_for_name(name).block_accessor(:response_blocks, current_state(name))
+          render_block.arity == 2 ? self.instance_exec(xml, self, &render_block) : self.instance_exec(xml, &render_block)
+        end
       end
-      xml.target!
     end
 
-    def flow_to(transition, state_machine_name = self.class.call_flow_state_machine_name)
-      block = current_block_accessor(:flow_to_blocks, state_machine_name)
-      self.instance_exec(self, transition, &block) if block
+    def run_blocks(accessor, transition)
+      return if transition.loopback?
+      blocks = transition.machine.block_accessor(accessor, transition.to_name) || []
+      blocks.each do |block|
+        self.instance_exec(self, transition, &block)
+      end
     end
 
     def draw_call_flow(*args)
-      current_state_machine.draw(*args)
+      self.class.current_state_machine.draw(*args)
     end
 
     private
 
-    def current_block_accessor(accessor, state_machine_name)
-      csm = self.class.state_machines[state_machine_name]
-      return unless csm.respond_to?(accessor)
-      blocks, name = csm.send(accessor), csm.name
-      blocks[current_flow_state(state_machine_name)] if blocks
+    def state_machine_for_name(state_machine_name)
+      self.class.state_machines[state_machine_name]
     end
 
-    def current_state_machine
-      self.class.current_state_machine
-    end
-
-    def current_flow_state(state_machine_name)
+    def current_state(state_machine_name)
       send(state_machine_name).to_sym
     end
 
