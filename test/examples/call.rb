@@ -37,11 +37,29 @@ class Call
     end
 
     state :cancelled do
-      before { notify(:going_to_be_cancelled) }
-      before { notify(:i_think) }
-      after{ notify(:cancelled) }
+      after(:success, :uniq => true) { notify(:cancelled) }
 
       customer :hangs_up, :to => same
+      customer :end, :to => :ended
+    end
+
+    response(:cancelled) do |x, call|
+      # Just for sake of comparison
+    end
+
+    state :ended do
+      after(:always) { notify(:after_always) }
+      after(:success) { notify(:after_success) }
+      after(:failure) { notify(:after_failure) }
+
+      after(:always, :uniq => true) { notify(:after_always_uniq) }
+      after(:success, :uniq => true) { |transition| notify(:after_success_uniq, transition) }
+      after(:failure, :uniq => true) { notify(:after_failure_uniq) }
+
+      before(:always) { notify(:before_always) }
+      before(:always, :uniq => true) { notify(:before_always_uniq) }
+
+      customer :end, :to => same
     end
   end
 end

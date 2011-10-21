@@ -1,6 +1,7 @@
 require 'call_center/core_ext/object_instance_exec'
 require 'state_machine'
 require 'call_center/state_machine_ext'
+require 'call_center/flow_callback'
 
 module CallCenter
   def self.included(base)
@@ -41,30 +42,11 @@ module CallCenter
       if state_machine = CallCenter.cached(self, state_machine_name)
         state_machine = state_machine.duplicate_to(self)
       else
-        state_machine = state_machine(*args, &blk)
-        state_machine.instance_eval do
-          before_transition any => any do |call, transition|
-            call.run_blocks(:before_blocks, transition)
-          end
-          after_transition any => any do |call, transition|
-            call.run_blocks(:after_blocks, transition)
-          end
-        end
-        setup_flow_actor_blocks(state_machine)
-
+        state_machine = state_machine(*args, &blk).setup_call_flow(self)
         CallCenter.cache(self, state_machine)
       end
       self.call_flow_state_machine_name ||= state_machine.name
       state_machine
-    end
-
-    def setup_flow_actor_blocks(state_machine)
-      return unless state_machine.flow_actor_blocks
-      state_machine.flow_actor_blocks.each do |actor, block|
-        define_method(actor) do |event|
-          self.instance_exec(self, event, &block) if block
-        end
-      end
     end
 
     def current_state_machine
@@ -80,14 +62,6 @@ module CallCenter
         if render_block = state_machine_for_name(name).block_accessor(:response_blocks, current_state(name))
           render_block.arity == 2 ? self.instance_exec(xml, self, &render_block) : self.instance_exec(xml, &render_block)
         end
-      end
-    end
-
-    def run_blocks(accessor, transition)
-      return if transition.loopback?
-      blocks = transition.machine.block_accessor(accessor, transition.to_name) || []
-      blocks.each do |block|
-        self.instance_exec(self, transition, &block)
       end
     end
 

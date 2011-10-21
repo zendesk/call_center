@@ -10,16 +10,14 @@ class StateMachine::Machine
     @response_blocks[state_name] = blk
   end
 
-  def before(state_name, &blk)
-    @before_blocks ||= {}
-    @before_blocks[state_name] ||= []
-    @before_blocks[state_name] << blk
+  def before(state_name, scope, options, &blk)
+    @before_blocks ||= []
+    @before_blocks << CallCenter::FlowCallback.create(state_name, :always, options, blk)
   end
 
-  def after(state_name, &blk)
-    @after_blocks ||= {}
-    @after_blocks[state_name] ||= []
-    @after_blocks[state_name] << blk
+  def after(state_name, scope, options, &blk)
+    @after_blocks ||= []
+    @after_blocks << CallCenter::FlowCallback.create(state_name, scope, options, blk)
   end
 
   def block_accessor(accessor, for_state)
@@ -31,6 +29,40 @@ class StateMachine::Machine
   def flow_actors(name, &blk)
     @flow_actor_blocks ||= {}
     @flow_actor_blocks[name] = blk
+  end
+
+  def setup_call_flow(flow)
+    setup_before_blocks
+    setup_after_blocks
+    setup_flow_actor_blocks(flow)
+    self
+  end
+
+  def setup_before_blocks
+    return unless @before_blocks
+    @before_blocks.each { |callback| callback.setup(self) }
+  end
+
+  def setup_after_blocks
+    return unless @after_blocks
+    @after_blocks.select(&:success).each { |callback| callback.setup(self) }
+
+    event_names = events.map(&:name)
+    event_names.each do |event_name|
+      after_failure :on => event_name do |call, transition|
+        callbacks = @after_blocks.select { |callback| callback.state_name == transition.to_name && callback.failure } || []
+        callbacks.each { |callback| callback.run(call, transition) }
+      end
+    end
+  end
+
+  def setup_flow_actor_blocks(flow_class)
+    return unless @flow_actor_blocks
+    @flow_actor_blocks.each do |actor, block|
+      flow_class.send(:define_method, actor) do |event|
+        self.instance_exec(self, event, &block) if block
+      end
+    end
   end
 end
 
@@ -44,15 +76,15 @@ class StateMachine::AlternateMachine
     end
   end
 
-  def before(&blk)
+  def before(scope, options = {}, &blk)
     if @from_state
-      @queued_sends << [[:before, @from_state], blk]
+      @queued_sends << [[:before, @from_state, scope, options], blk]
     end
   end
 
-  def after(scope = nil, &blk)
+  def after(scope, options = {}, &blk)
     if @from_state
-      @queued_sends << [[:after, @from_state], blk]
+      @queued_sends << [[:after, @from_state, scope, options], blk]
     end
   end
 

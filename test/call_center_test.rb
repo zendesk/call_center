@@ -130,30 +130,24 @@ class CallCenterTest < Test::Unit::TestCase
       assert_select "Response"
     end
 
-    should "respond before flow to state" do
-      @call.state = 'routing'
-      @call.stubs(:notify).with(:cancelled)
-      @call.expects(:notify).with(:going_to_be_cancelled).once
-      @call.expects(:notify).with(:i_think).once
-      @call.customer_hangs_up!
-      assert @call.cancelled?
-      @call.customer_hangs_up!
-      assert @call.cancelled?
-      @call.customer_hangs_up!
-      assert @call.cancelled?
-    end
+    should "execute before callbacks" do
+      @call.state = 'cancelled'
 
-    should "respond after flow to state" do
-      @call.state = 'routing'
-      @call.stubs(:notify).with(:going_to_be_cancelled)
-      @call.stubs(:notify).with(:i_think)
-      @call.expects(:notify).with(:cancelled).once
-      @call.customer_hangs_up!
-      assert @call.cancelled?
-      @call.customer_hangs_up!
-      assert @call.cancelled?
-      @call.customer_hangs_up!
-      assert @call.cancelled?
+      @call.expects(:notify).with(:before_always).times(3)
+      @call.expects(:notify).with(:before_always_uniq).times(1)
+
+      @call.expects(:notify).with(:after_always).times(4)
+      @call.expects(:notify).with(:after_success).times(3)
+      @call.expects(:notify).with(:after_failure).times(1)
+
+      @call.expects(:notify).with(:after_always_uniq).times(1)
+      @call.expects(:notify).with { |notification, transition| notification == :after_success_uniq && transition.kind_of?(StateMachine::Transition) }.times(1)
+      @call.expects(:notify).with(:after_failure_uniq).times(0)
+
+      @call.customer_end!
+      @call.customer_end!
+      @call.customer_end!
+      assert(!@call.customer_hangs_up)
     end
 
     should "asynchronously perform event" do

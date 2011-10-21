@@ -37,7 +37,7 @@ Rcov::RcovTask.new do |test|
   test.libs << 'test'
   test.pattern = 'test/**/*_test.rb'
   test.verbose = true
-  test.rcov_opts << '--exclude "gems/*"'
+  test.rcov_opts << '--exclude "gems/*,lib/call_center/core_ext/object_instance_exec.rb"'
 end
 
 task :default => :test
