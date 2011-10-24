@@ -1,0 +1,9 @@
+def run_tests
+  system("ruby minitest/run.rb")
+end
+
+guard 'shell' do
+  watch(%r{^lib/(.+)\.rb$})         { run_tests }
+  watch(%r{^minitest/.+_test\.rb$}) { run_tests }
+  watch('minitest/helper.rb')       { run_tests }
+end

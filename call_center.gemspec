@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = %q{2011-10-23}
+  s.date = %q{2011-10-24}
   s.description = %q{Support for describing call center workflows}
   s.email = %q{hhsu@zendesk.com}
   s.extra_rdoc_files = [
@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
     "Gemfile",
     "Gemfile.lock",
     "Guardfile",
+    "Guardfile.minitest",
     "LICENSE.txt",
     "README.md",
     "Rakefile",
@@ -33,6 +34,10 @@ Gem::Specification.new do |s|
     "lib/call_center/flow_callback.rb",
     "lib/call_center/state_machine_ext.rb",
     "lib/call_center/test/dsl.rb",
+    "lib/call_center/test/minitest/dsl.rb",
+    "minitest/call_center/test/minitest_test.rb",
+    "minitest/helper.rb",
+    "minitest/run.rb",
     "test/call_center_test.rb",
     "test/core_ext_test.rb",
     "test/examples/call.rb",
@@ -64,6 +69,9 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<mocha>, [">= 0"])
       s.add_development_dependency(%q<bourne>, [">= 0"])
       s.add_development_dependency(%q<pre-commit>, [">= 0"])
+      s.add_development_dependency(%q<minitest>, ["= 2.6.1"])
+      s.add_development_dependency(%q<minitest-reporters>, [">= 0"])
+      s.add_development_dependency(%q<guard-shell>, [">= 0"])
     else
       s.add_dependency(%q<builder>, [">= 0"])
       s.add_dependency(%q<hsume2-state_machine>, ["~> 1.0.5"])
@@ -78,6 +86,9 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<mocha>, [">= 0"])
       s.add_dependency(%q<bourne>, [">= 0"])
       s.add_dependency(%q<pre-commit>, [">= 0"])
+      s.add_dependency(%q<minitest>, ["= 2.6.1"])
+      s.add_dependency(%q<minitest-reporters>, [">= 0"])
+      s.add_dependency(%q<guard-shell>, [">= 0"])
     end
   else
     s.add_dependency(%q<builder>, [">= 0"])
@@ -93,6 +104,9 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<mocha>, [">= 0"])
     s.add_dependency(%q<bourne>, [">= 0"])
     s.add_dependency(%q<pre-commit>, [">= 0"])
+    s.add_dependency(%q<minitest>, ["= 2.6.1"])
+    s.add_dependency(%q<minitest-reporters>, [">= 0"])
+    s.add_dependency(%q<guard-shell>, [">= 0"])
   end
 end
 

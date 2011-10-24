@@ -12,6 +12,9 @@ group :development do
   gem 'mocha'
   gem 'bourne'
   gem 'pre-commit'
+  gem 'minitest', '2.6.1'
+  gem 'minitest-reporters', :require => 'minitest/reporters'
+  gem 'guard-shell'
 end
 
 gem 'builder'
