@@ -9,58 +9,64 @@ Call Center streamlines the process of defining multi-party call workflows in yo
 
 [Twilio](http://www.twilio.com/docs) provides a two-part API for managing phone calls, and is mostly driven by callbacks. Call Center DRYs up the application logic dealing with a callback driven API so you can focus on the business logic of your call center.
 
-### Not DRY
-Twilio requests your application to return [TwiML](http://www.twilio.com/docs/api/twiml/) that describes the call workflow. TwiML contains commands which Twilio then executes. It is essentially an application-to-application API, synonymous to making a REST call.
-
-In the context of "[Skinny Controller, Fat Model](http://weblog.jamisbuck.org/2006/10/18/skinny-controller-fat-model)", outgoing REST calls for the function of business logic are not a view concern but a model concern. Therefore, so is TwiML.
-
-Twilio supports callbacks URLs and redirects to URLs that also render TwiML as a method of modifying live calls. Incoming callbacks are handled by the controller first, but the response is still a model concern.
-
-Terminology
------------
-
-* **Call** - An application resource of yours that encapsulates a phone call. Phone calls are then acted on: answered, transferred, declined, etc.
-* **Event** - Is something that happens outside or inside your application in relation to a **Call**. Someone picks up, hangs up, presses a button, etc. But overall, it's anything that can be triggered by Twilio callbacks.
-* **State** - Is the status a **Call** is in which is descriptive of what's happened so far and what are the next things that should happen. (e.g. a call on hold is waiting for the agent to return)
-* **CallFlow** - Is a definition of the process a **Call** goes through. **Events** drive the flow between **States**. (e.g. a simple workflow is when noone answers the call, send the call to voicemail)
-* **Render** - Is the ability of the **CallFlow** to return TwiML to bring the call into the **State** or modify the live call through a **Redirect**.
-* **Redirect** - Is a way of modifying a live call outside of a TwiML response (e.g. background jobs)
-
 Usage
 -----
 
     class Call
       include CallCenter
 
-      call_flow :state, :intial => :answered do
-        state :answered do
-          event :incoming_call, :to => :voicemail, :if => :not_during_business_hours?
-          event :incoming_call, :to => :sales
+      call_flow :state, :intial => :incoming do
+        actor :customer do |call, event|
+          "/voice/calls/flow?event=#{event}&actor=customer&call_id=#{call.id}"
+        end
+
+        state :incoming do
+          response do |x|
+            x.Gather :numDigits => '1', :action => customer(:wants_voicemail) do
+              x.Say "Hello World"
+              x.Play some_nice_music, :loop => 100
+            end
+            # <?xml version="1.0" encoding="UTF-8" ?>
+            # <Response>
+            #   <Gather numDigits="1" action="/voice/calls/flow?event=wants_voicemail&actor=customer&call_id=5000">
+            #     <Say>Hello World</Say>
+            #     <Play loop="100">http://some.nice.music.com/1.mp3</Play>
+            #   </Gather>
+            # </Response>
+          end
+
+          event :called, :to => :routing, :if => :agents_available?
+          event :called, :to => :voicemail
+          event :wants_voicemail, :to => :voicemail
+          event :customer_hangs_up, :to => :cancelled
         end
 
         state :voicemail do
-          event :customer_hangs_up, :to => :voicemail_completed
+          response do |x|
+            x.Say "Please leave a message"
+            x.Record(:action => customer(:voicemail_complete))
+            # <?xml version="1.0" encoding="UTF-8" ?>
+            # <Response>
+            #   <Say>Please leave a message</Say>
+            #   <Record action="/voice/calls/flow?event=voicemail_complete&actor=customer&call_id=5000"/>
+            # </Response>
+          end
+
+          event :voicemail_complete, :to => :voicemail_completed
+          event :customer_hangs_up, :to => :cancelled
         end
 
-        on_render(:sales) do |call, x|
-          x.Say "This is Sales!"
-        end
+        state :routing do
 
-        on_render(:voicemail) do |call, x|
-          x.Say "Leave a voicemail!"
-        end
-
-        on_flow_to(:voicemail) do |call, transition|
-          call.notify(:voicemail)
         end
       end
     end
 
 Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Which means you can interact with events the same you do in `state_machine`.
 
-    @call.incoming_call!
-    @call.voicemail?
-    @call.sales?
+    @call.called!
+    @call.wants_voicemail!
+    @call.routing?
     @call.render # See Rendering
 
 Flow
@@ -96,63 +102,69 @@ Rendering
 
 Rendering is your way of interacting with Twilio. Thus, it provides two facilities: access to an XML builder and access to your call.
 
-    on_render(:sales) do |the_call, xml_builder|
-      xml_builder.Say "This is Sales!"
-
-      the_call.flag! # You can access the call explicitly
-      flag!          # Or access it implicitly
+    state :sales do
+      response do |xml_builder, the_call|
+        xml_builder.Say "This is #{the_call.agent.name}!" # Or agent.name, you can access he call implicitly
+      end
     end
 
 Renders with `@call.render` if the current state is :sales:
 
     <?xml version="1.0" encoding="UTF-8"?>
     <Response>
-      <Say>This is Sales!</Say>
+      <Say>This is Henry!</Say>
     </Response>
 
 Callbacks
 ---------
 
-If you ever want to do something special after entering a state, but only if it's a new transition (e.g. NOT from :voicemail => :voicemail), you can do this:
+You have control over what you want to happen before/after state transitions:
 
-    on_flow_to(:voicemail) do |the_call, the_transition|
-      the_call.notify(transition.event) # Explicitly
-      notify(transition.event) # Implicitly
+    state :voicemail do
+      before(:always) { # Invokes before any transition }
+      before(:always, :uniq => true) { # Invokes before transitions to a different state }
+
+      after(:always) { # Invokes after any transition }
+      after(:success) { # Invokes after any successful transition }
+      after(:failure) { # Invokes after any failed transition (those not covered in your call flow) }
+
+      after(:always, :uniq => true) { # Invokes after any transition to a different state }
+      after(:success, :uniq => true) { # Successful unique transitions }
+      after(:failure, :uniq => true) { # Failed unique transitions }
     end
 
-Redirects
----------
+For example,
 
-Redirects are a request made to the [Twilio REST API](http://www.twilio.com/docs/api/rest/) that points to a callback URL which returns TwiML to be executed on a call. It is up to you how you want to perform this (e.g. with your favority http libraries, or with [Twilio Libraries](http://www.twilio.com/docs/libraries/)).
+    state :voicemail do
+      before(:always) { log_start_event }
 
-Redirect to events look like this:
+      after(:always) { log_end_event }
+      after(:failure) { notify_airbrake }
 
-    ...
-    call_flow :state, :intial => :answered do
-      state :answered do
-        ...
-      end
-
-      state :ending_call do
-        event :end_call, :to => :ended_call
-      end
-
-      on_render(:ending_call) do
-        redirect_and_end_call!(:status => 'completed')
-      end
+      after(:success, :uniq => true) { notify_browser }
+      after(:failure, :uniq => true) { notify_cleanup_browser }
     end
-    ...
 
-For your **Call** to support this syntax, it must adhere to the following API:
+Motivation
+----------
 
-    class Call
-      def redirect_to(event, *args)
-        # where:
-        #   event #=> :end_call
-        #   args  #=> [:status => 'completed]
-        @account.calls.get(self.sid).update({:url => "http://myapp.com/call_flow?event=#{event}"})
-      end
-    end
+### Not DRY
+Twilio requests your application to return [TwiML](http://www.twilio.com/docs/api/twiml/) that describes the call workflow. TwiML contains commands which Twilio then executes. It is essentially an application-to-application API, synonymous to making a REST call.
+
+In the context of "[Skinny Controller, Fat Model](http://weblog.jamisbuck.org/2006/10/18/skinny-controller-fat-model)", outgoing REST calls for the function of business logic are not a view concern but a model concern. Therefore, so is TwiML.
+
+Twilio supports callbacks URLs and redirects to URLs that also render TwiML as a method of modifying live calls. Incoming callbacks are handled by the controller first, but the response is still a model concern.
+
+
+Terminology
+-----------
+
+* **Call** - An application resource of yours that encapsulates a phone call. Phone calls are then acted on: answered, transferred, declined, etc.
+* **Event** - Is something that happens outside or inside your application in relation to a **Call**. Someone picks up, hangs up, presses a button, etc. But overall, it's anything that can be triggered by Twilio callbacks.
+* **State** - Is the status a **Call** is in which is descriptive of what's happened so far and what are the next things that should happen. (e.g. a call on hold is waiting for the agent to return)
+* **CallFlow** - Is a definition of the process a **Call** goes through. **Events** drive the flow between **States**. (e.g. a simple workflow is when noone answers the call, send the call to voicemail)
+* **Render** - Is the ability of the **CallFlow** to return TwiML to bring the call into the **State** or modify the live call through a **Redirect**.
+* **Redirect** - Is a way of modifying a live call outside of a TwiML response (e.g. background jobs)
 
 Tools
 -----
