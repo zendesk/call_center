@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{call_center}
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = %q{2011-09-29}
+  s.date = %q{2011-10-23}
   s.description = %q{Support for describing call center workflows}
   s.email = %q{hhsu@zendesk.com}
   s.extra_rdoc_files = [
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
     "init.rb",
     "lib/call_center.rb",
     "lib/call_center/core_ext/object_instance_exec.rb",
+    "lib/call_center/flow_callback.rb",
     "lib/call_center/state_machine_ext.rb",
     "lib/call_center/test/dsl.rb",
     "test/call_center_test.rb",
