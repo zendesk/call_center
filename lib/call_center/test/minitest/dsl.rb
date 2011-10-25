@@ -9,8 +9,7 @@ module CallCenter
         class ItShouldFlow
           def initialize(context, &block)
             @context = context
-            self.instance_eval(&block)
-            verify
+            self.instance_eval(&block) if block_given?
           end
 
           def on(event)
@@ -194,11 +193,15 @@ module CallCenter
             include ActionController::Assertions::SelectorAssertions
 
             def self.it_should_flow(&block)
-              CallCenter::Test::MiniTest::DSL::ItShouldFlow.new(self, &block)
+              CallCenter::Test::MiniTest::DSL::ItShouldFlow.new(self, &block).verify
             end
 
             def self.it_should_render(&block)
-              CallCenter::Test::MiniTest::DSL::ItShouldRender.new(self, &block)
+              CallCenter::Test::MiniTest::DSL::ItShouldRender.new(self, &block).verify
+            end
+
+            def stub_branches(object)
+              CallCenter::Test::MiniTest::DSL::ItShouldFlow.new(self).restubs(object)
             end
 
             def response_from_page_or_rjs
