@@ -1,8 +1,7 @@
 # Extension for StateMachine::Machine to store and provide render blocks
 class StateMachine::Machine
   attr_accessor :response_blocks
-  attr_accessor :before_blocks
-  attr_accessor :after_blocks
+  attr_accessor :callback_blocks
   attr_accessor :flow_actor_blocks
 
   def response(state_name, &blk)
@@ -11,13 +10,13 @@ class StateMachine::Machine
   end
 
   def before(state_name, scope, options, &blk)
-    @before_blocks ||= []
-    @before_blocks << CallCenter::FlowCallback.create(state_name, :always, options, blk)
+    @callback_blocks ||= []
+    @callback_blocks << CallCenter::FlowCallback.create(state_name, :always, options, blk)
   end
 
   def after(state_name, scope, options, &blk)
-    @after_blocks ||= []
-    @after_blocks << CallCenter::FlowCallback.create(state_name, scope, options, blk)
+    @callback_blocks ||= []
+    @callback_blocks << CallCenter::AfterFlowCallback.create(state_name, scope, options, blk)
   end
 
   def block_accessor(accessor, for_state)
@@ -32,25 +31,23 @@ class StateMachine::Machine
   end
 
   def setup_call_flow(flow)
-    setup_before_blocks
-    setup_after_blocks
+    setup_success_blocks
+    setup_failure_blocks
     setup_flow_actor_blocks(flow)
     self
   end
 
-  def setup_before_blocks
-    return unless @before_blocks
-    @before_blocks.each { |callback| callback.setup(self) }
+  def setup_success_blocks
+    return unless @callback_blocks
+    @callback_blocks.select { |c| c.before || (c.success && c.after) }.each { |callback| callback.setup(self) }
   end
 
-  def setup_after_blocks
-    return unless @after_blocks
-    @after_blocks.select(&:success).each { |callback| callback.setup(self) }
-
+  def setup_failure_blocks
+    return unless @callback_blocks
     event_names = events.map(&:name)
     event_names.each do |event_name|
       after_failure :on => event_name do |call, transition|
-        callbacks = @after_blocks.select { |callback| callback.state_name == transition.to_name && callback.failure } || []
+        callbacks = @callback_blocks.select { |callback| callback.after && callback.state_name == transition.to_name && callback.failure } || []
         callbacks.each { |callback| callback.run(call, transition) }
       end
     end

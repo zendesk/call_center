@@ -130,7 +130,7 @@ class CallCenterTest < Test::Unit::TestCase
       assert_select "Response"
     end
 
-    should "execute before callbacks" do
+    should "execute callbacks" do
       @call.state = 'cancelled'
 
       @call.expects(:notify).with(:before_always).times(3)
@@ -148,6 +148,22 @@ class CallCenterTest < Test::Unit::TestCase
       @call.customer_end!
       @call.customer_end!
       assert(!@call.customer_hangs_up)
+    end
+
+    should "execute callbacks in sequence" do
+      seq = sequence('callback_sequence')
+      @call.state = 'cancelled'
+
+      @call.expects(:notify).with(:before_always).in_sequence(seq)
+      @call.expects(:notify).with(:before_always_uniq).in_sequence(seq)
+
+      @call.expects(:notify).with(:after_always).in_sequence(seq)
+      @call.expects(:notify).with(:after_success).in_sequence(seq)
+
+      @call.expects(:notify).with(:after_always_uniq).in_sequence(seq)
+      @call.expects(:notify).with(:after_success_uniq, anything).in_sequence(seq)
+
+      @call.customer_end!
     end
 
     should "asynchronously perform event" do

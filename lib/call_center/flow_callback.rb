@@ -5,11 +5,11 @@ module CallCenter
     def self.create(state_name, scope, options, block)
       case scope
       when :success
-        FlowCallback.new(state_name, scope, options, block).extend(SuccessFlowCallback)
+        new(state_name, scope, options, block).extend(SuccessFlowCallback)
       when :failure
-        FlowCallback.new(state_name, scope, options, block).extend(FailureFlowCallback)
+        new(state_name, scope, options, block).extend(FailureFlowCallback)
       else
-        FlowCallback.new(state_name, scope, options, block).extend(AlwaysFlowCallback)
+        new(state_name, scope, options, block).extend(AlwaysFlowCallback)
       end
     end
 
@@ -26,9 +26,17 @@ module CallCenter
 
     def setup(context)
       callback = self
-      context.before_transition(transition_parameters(context)) do |call, transition|
+      context.send(transition_hook, transition_parameters(context)) do |call, transition|
         callback.run(call, transition)
       end
+    end
+
+    def before
+      true
+    end
+
+    def after
+      false
     end
 
     private
@@ -37,7 +45,25 @@ module CallCenter
       { context.any => @state_name }
     end
 
+    def transition_hook
+      :before_transition
+    end
+
     def should_run?
+      true
+    end
+  end
+
+  class AfterFlowCallback < FlowCallback
+    def transition_hook
+      :after_transition
+    end
+
+    def before
+      false
+    end
+
+    def after
       true
     end
   end
