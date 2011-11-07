@@ -24,10 +24,17 @@ module CallCenter
       flow.instance_exec(transition, &block) if should_run?
     end
 
+    def run_deferred?(call, transition)
+      if call.respond_to?(:call_flow_callbacks_deferred?) && call.call_flow_callbacks_deferred?
+        call.call_flow_defer_callback(self, transition)
+        true
+      end
+    end
+
     def setup(context)
       callback = self
       context.send(transition_hook, transition_parameters(context)) do |call, transition|
-        callback.run(call, transition)
+        callback.run(call, transition) unless callback.run_deferred?(call, transition)
       end
     end
 

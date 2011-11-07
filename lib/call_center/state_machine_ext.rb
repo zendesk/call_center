@@ -48,7 +48,7 @@ class StateMachine::Machine
     event_names.each do |event_name|
       after_failure :on => event_name do |call, transition|
         callbacks = @callback_blocks.select { |callback| callback.after && callback.state_name == transition.to_name && callback.failure } || []
-        callbacks.each { |callback| callback.run(call, transition) }
+        callbacks.each { |callback| callback.run(call, transition) unless callback.run_deferred?(call, transition) }
       end
     end
   end

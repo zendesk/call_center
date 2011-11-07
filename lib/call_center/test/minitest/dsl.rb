@@ -130,6 +130,11 @@ module CallCenter
               subject.send(:"#{state_field}=", from)
               subject.send(:"#{event}!")
               subject.send(state_field).must_equal(to)
+              if subject.respond_to?(:call_flow_run_deferred)
+                subject.call_flow_run_deferred(:before_transition)
+                subject.call_flow_run_deferred(:after_transition)
+                subject.call_flow_run_deferred(:after_failure)
+              end
             end
           end
 

@@ -2,6 +2,7 @@ require 'call_center/core_ext/object_instance_exec'
 require 'state_machine'
 require 'call_center/state_machine_ext'
 require 'call_center/flow_callback'
+require 'call_center/deferred_callbacks'
 
 module CallCenter
   def self.included(base)
@@ -73,6 +74,10 @@ module CallCenter
 
     def state_machine_for_name(state_machine_name)
       self.class.state_machines[state_machine_name]
+    end
+
+    def call_flow_state_machine_name
+      self.class.call_flow_state_machine_name
     end
 
     def current_state(state_machine_name)

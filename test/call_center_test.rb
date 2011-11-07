@@ -166,6 +166,54 @@ class CallCenterTest < Test::Unit::TestCase
       @call.customer_end!
     end
 
+    should "defer callbacks" do
+      (class << @call; self; end).class_eval do
+        include CallCenter::DeferredCallbacks
+      end
+      @call.state = 'cancelled'
+
+      @call.expects(:notify).with(:before_always).never
+      @call.expects(:notify).with(:before_always_uniq).never
+
+      @call.expects(:notify).with(:after_always).never
+      @call.expects(:notify).with(:after_success).never
+      @call.expects(:notify).with(:after_failure).never
+
+      @call.expects(:notify).with(:after_always_uniq).never
+      @call.expects(:notify).with(:after_success_uniq, anything).never
+
+      @call.customer_end!
+      assert(!@call.customer_hangs_up)
+
+      # Ready for deferred callbacks
+
+      seq = sequence('callback_sequence')
+
+      @call.expects(:notify).with(:before_always)
+      @call.expects(:notify).with(:before_always_uniq)
+
+      @call.call_flow_run_deferred(:before_transition)
+
+      @call.expects(:notify).with(:after_always).times(2)
+      @call.expects(:notify).with(:after_success)
+
+      @call.expects(:notify).with(:after_always_uniq)
+      @call.expects(:notify).with(:after_success_uniq, anything)
+
+      @call.call_flow_run_deferred(:after_transition)
+
+      @call.expects(:notify).with(:after_always).times(2)
+      @call.expects(:notify).with(:after_failure)
+      @call.expects(:notify).with(:after_always_uniq)
+
+      @call.call_flow_run_deferred(:after_failure)
+
+      # Empty
+      @call.call_flow_run_deferred(:before_transition)
+      @call.call_flow_run_deferred(:after_transition)
+      @call.call_flow_run_deferred(:after_failure)
+    end
+
     should "asynchronously perform event" do
       @call.stubs(:agents_available?).returns(true)
       @call.incoming_call!
@@ -194,6 +242,48 @@ class CallCenterTest < Test::Unit::TestCase
     end
 
     context "using test DSL:" do
+      should_flow :on => :incoming_call, :initial => :voicemail, :when => Proc.new {
+        @call.stubs(:agents_available?).returns(false)
+        @call.stubs(:notify)
+        @call.stubs(:customer).returns('the_flow')
+      } do
+        should_also { assert_received(@call, :notify) { |e| e.with(:rendering_voicemail) } }
+        and_also { assert_received(@call, :customer) { |e| e.with(:voicemail_complete) } }
+        and_render { "Response>Say" }
+        and_render { "Response>Record[action=the_flow]" }
+      end
+
+      should_flow :on => :incoming_call, :initial => :routing, :when => Proc.new {
+        @call.stubs(:agents_available?).returns(true)
+      } do
+        should_render { "Response" }
+      end
+
+      should_flow :on => :customer_hangs_up, :routing => :cancelled, :when => Proc.new {
+        @call.stubs(:notify)
+      } do
+        should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } }
+        and_also { assert @call.cancelled? }
+
+        should_flow :on => :customer_hangs_up, :cancelled => :cancelled do
+          should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } } # For above
+          and_also { assert @call.cancelled? }
+
+          should_flow :on => :customer_hangs_up, :cancelled => :cancelled do
+            should_also { assert_received(@call, :notify) { |e| e.with(:cancelled).once } } # For above
+            and_also { assert @call.cancelled? }
+          end
+        end
+      end
+    end
+
+    context "deferred and using test DSL:" do
+      setup do
+        (class << @call; self; end).class_eval do
+          include CallCenter::DeferredCallbacks
+        end
+      end
+
       should_flow :on => :incoming_call, :initial => :voicemail, :when => Proc.new {
         @call.stubs(:agents_available?).returns(false)
         @call.stubs(:notify)

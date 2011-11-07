@@ -31,6 +31,11 @@ module CallCenter
               @call.send(:"#{state_field}=", from.to_s)
               @call.send(:"#{event}")
               assert_equal to, @call.send(:"#{state_field}_name"), "status should be :#{to}, not :#{@call.send(state_field)}"
+              if @call.respond_to?(:call_flow_run_deferred)
+                @call.call_flow_run_deferred(:before_transition)
+                @call.call_flow_run_deferred(:after_transition)
+                @call.call_flow_run_deferred(:after_failure)
+              end
             end
 
             if block.present?
@@ -40,6 +45,11 @@ module CallCenter
                   @call.send(:"#{state_field}=", from.to_s)
                   @call.send(:"#{event}")
                   body(@call.render) if @call.respond_to?(:render)
+                  if @call.respond_to?(:call_flow_run_deferred)
+                    @call.call_flow_run_deferred(:before_transition)
+                    @call.call_flow_run_deferred(:after_transition)
+                    @call.call_flow_run_deferred(:after_failure)
+                  end
                 end
 
                 self.instance_eval(&block)
