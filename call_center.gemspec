@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{call_center}
-  s.version = "0.0.7"
+  s.version = "0.0.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
     "init.rb",
     "lib/call_center.rb",
     "lib/call_center/core_ext/object_instance_exec.rb",
+    "lib/call_center/deferred_callbacks.rb",
     "lib/call_center/flow_callback.rb",
     "lib/call_center/state_machine_ext.rb",
     "lib/call_center/test/dsl.rb",
