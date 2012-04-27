@@ -12,62 +12,66 @@ Call Center streamlines the process of defining multi-party call workflows in yo
 Usage
 -----
 
-    class Call
-      include CallCenter
+```ruby
+class Call
+  include CallCenter
 
-      call_flow :state, :intial => :incoming do
-        actor :customer do |call, event|
-          "/voice/calls/flow?event=#{event}&actor=customer&call_id=#{call.id}"
-        end
-
-        state :incoming do
-          response do |x|
-            x.Gather :numDigits => '1', :action => customer(:wants_voicemail) do
-              x.Say "Hello World"
-              x.Play some_nice_music, :loop => 100
-            end
-            # <?xml version="1.0" encoding="UTF-8" ?>
-            # <Response>
-            #   <Gather numDigits="1" action="/voice/calls/flow?event=wants_voicemail&actor=customer&call_id=5000">
-            #     <Say>Hello World</Say>
-            #     <Play loop="100">http://some.nice.music.com/1.mp3</Play>
-            #   </Gather>
-            # </Response>
-          end
-
-          event :called, :to => :routing, :if => :agents_available?
-          event :called, :to => :voicemail
-          event :wants_voicemail, :to => :voicemail
-          event :customer_hangs_up, :to => :cancelled
-        end
-
-        state :voicemail do
-          response do |x|
-            x.Say "Please leave a message"
-            x.Record(:action => customer(:voicemail_complete))
-            # <?xml version="1.0" encoding="UTF-8" ?>
-            # <Response>
-            #   <Say>Please leave a message</Say>
-            #   <Record action="/voice/calls/flow?event=voicemail_complete&actor=customer&call_id=5000"/>
-            # </Response>
-          end
-
-          event :voicemail_complete, :to => :voicemail_completed
-          event :customer_hangs_up, :to => :cancelled
-        end
-
-        state :routing do
-
-        end
-      end
+  call_flow :state, :intial => :incoming do
+    actor :customer do |call, event|
+      "/voice/calls/flow?event=#{event}&actor=customer&call_id=#{call.id}"
     end
+
+    state :incoming do
+      response do |x|
+        x.Gather :numDigits => '1', :action => customer(:wants_voicemail) do
+          x.Say "Hello World"
+          x.Play some_nice_music, :loop => 100
+        end
+        # <?xml version="1.0" encoding="UTF-8" ?>
+        # <Response>
+        #   <Gather numDigits="1" action="/voice/calls/flow?event=wants_voicemail&actor=customer&call_id=5000">
+        #     <Say>Hello World</Say>
+        #     <Play loop="100">http://some.nice.music.com/1.mp3</Play>
+        #   </Gather>
+        # </Response>
+      end
+
+      event :called, :to => :routing, :if => :agents_available?
+      event :called, :to => :voicemail
+      event :wants_voicemail, :to => :voicemail
+      event :customer_hangs_up, :to => :cancelled
+    end
+
+    state :voicemail do
+      response do |x|
+        x.Say "Please leave a message"
+        x.Record(:action => customer(:voicemail_complete))
+        # <?xml version="1.0" encoding="UTF-8" ?>
+        # <Response>
+        #   <Say>Please leave a message</Say>
+        #   <Record action="/voice/calls/flow?event=voicemail_complete&actor=customer&call_id=5000"/>
+        # </Response>
+      end
+
+      event :voicemail_complete, :to => :voicemail_completed
+      event :customer_hangs_up, :to => :cancelled
+    end
+
+    state :routing do
+
+    end
+  end
+end
+```
 
 Benefits of **CallCenter** is that it's backed by [state_machine](https://github.com/pluginaweek/state_machine). Which means you can interact with events the same you do in `state_machine`.
 
-    @call.called!
-    @call.wants_voicemail!
-    @call.routing?
-    @call.render # See Rendering
+```ruby
+@call.called!
+@call.wants_voicemail!
+@call.routing?
+@call.render # See Rendering
+```
 
 Flow
 ----
@@ -91,9 +95,11 @@ In order to DRY up the callbacks, it is best to have use standardized callback U
 
 By handling this in your controller, you can immediately retrieve the **Call** from persistence, run an event on the call, and return the rendered TwiML. Here's an example:
 
-    def flow
-      render :xml => @call.run(params[:event])
-    end
+```ruby
+def flow
+  render :xml => @call.run(params[:event])
+end
+```
 
 For an in-depth example, take a look at [call_roulette](https://github.com/zendesk/call_roulette).
 
@@ -102,48 +108,56 @@ Rendering
 
 Rendering is your way of interacting with Twilio. Thus, it provides two facilities: access to an XML builder and access to your call.
 
-    state :sales do
-      response do |xml_builder, the_call|
-        xml_builder.Say "This is #{the_call.agent.name}!" # Or agent.name, you can access he call implicitly
-      end
-    end
+```ruby
+state :sales do
+  response do |xml_builder, the_call|
+    xml_builder.Say "This is #{the_call.agent.name}!" # Or agent.name, you can access he call implicitly
+  end
+end
+```
 
 Renders with `@call.render` if the current state is :sales:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <Response>
-      <Say>This is Henry!</Say>
-    </Response>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Say>This is Henry!</Say>
+</Response>
+```
 
 Callbacks
 ---------
 
 You have control over what you want to happen before/after state transitions:
 
-    state :voicemail do
-      before(:always) { # Invokes before any transition }
-      before(:always, :uniq => true) { # Invokes before transitions to a different state }
+```ruby
+state :voicemail do
+  before(:always) { # Invokes before any transition }
+  before(:always, :uniq => true) { # Invokes before transitions to a different state }
 
-      after(:always) { # Invokes after any transition }
-      after(:success) { # Invokes after any successful transition }
-      after(:failure) { # Invokes after any failed transition (those not covered in your call flow) }
+  after(:always) { # Invokes after any transition }
+  after(:success) { # Invokes after any successful transition }
+  after(:failure) { # Invokes after any failed transition (those not covered in your call flow) }
 
-      after(:always, :uniq => true) { # Invokes after any transition to a different state }
-      after(:success, :uniq => true) { # Successful unique transitions }
-      after(:failure, :uniq => true) { # Failed unique transitions }
-    end
+  after(:always, :uniq => true) { # Invokes after any transition to a different state }
+  after(:success, :uniq => true) { # Successful unique transitions }
+  after(:failure, :uniq => true) { # Failed unique transitions }
+end
+```
 
 For example,
 
-    state :voicemail do
-      before(:always) { log_start_event }
+```ruby
+state :voicemail do
+  before(:always) { log_start_event }
 
-      after(:always) { log_end_event }
-      after(:failure) { notify_airbrake }
+  after(:always) { log_end_event }
+  after(:failure) { notify_airbrake }
 
-      after(:success, :uniq => true) { notify_browser }
-      after(:failure, :uniq => true) { notify_cleanup_browser }
-    end
+  after(:success, :uniq => true) { notify_browser }
+  after(:failure, :uniq => true) { notify_cleanup_browser }
+end
+```
 
 Motivation
 ----------
@@ -173,9 +187,11 @@ Tools
 
 Should you be interested in what your call center workflow looks like, you can draw.
 
-    Call.state_machines[:status].draw(:font => 'Helvetica Neue')
-    # OR
-    @call.draw_call_flow(:font => 'Helvetica Neue')
+```ruby
+Call.state_machines[:status].draw(:font => 'Helvetica Neue')
+# OR
+@call.draw_call_flow(:font => 'Helvetica Neue')
+```
 
 Future
 ------
