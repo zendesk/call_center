@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{call_center}
-  s.version = "0.0.9"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = %q{2011-11-09}
+  s.date = %q{2012-06-04}
   s.description = %q{Support for describing call center workflows}
   s.email = %q{hhsu@zendesk.com}
   s.extra_rdoc_files = [
@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
     ".rvmrc",
+    ".travis.yml",
     "Gemfile",
     "Gemfile.lock",
     "Guardfile",
@@ -30,6 +31,7 @@ Gem::Specification.new do |s|
     "call_center.gemspec",
     "init.rb",
     "lib/call_center.rb",
+    "lib/call_center/conditional_stack.rb",
     "lib/call_center/core_ext/object_instance_exec.rb",
     "lib/call_center/deferred_callbacks.rb",
     "lib/call_center/flow_callback.rb",
@@ -42,6 +44,7 @@ Gem::Specification.new do |s|
     "test/call_center_test.rb",
     "test/core_ext_test.rb",
     "test/examples/call.rb",
+    "test/examples/dynamic_transition_call.rb",
     "test/examples/legacy_call.rb",
     "test/examples/multiple_flow_call.rb",
     "test/examples/non_standard_call.rb",
