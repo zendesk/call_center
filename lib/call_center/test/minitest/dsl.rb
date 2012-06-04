@@ -104,7 +104,13 @@ module CallCenter
             stub_methods = (after_transition_methods(s_m) | if_and_unless_conditions(s_m)).uniq - without
             object.reset_mocha
             stub_methods.each do |m|
-              object.stubs(m)
+              if m.instance_of?(CallCenter::ConditionalStack::Evaluator)
+                m.stack.map(&:name).each do |name|
+                  object.stubs(name)
+                end
+              else
+                object.stubs(m)
+              end
             end
           end
 

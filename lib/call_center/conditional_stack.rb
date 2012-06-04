@@ -18,9 +18,12 @@ module CallCenter
 
     def inject(options)
       current_stack = @stack.dup
-      options.merge(:if => lambda { |model|
+
+      evaluator = Evaluator.new(current_stack) { |model|
         current_stack.map { |conditional| conditional.evaluate(model) }.all?
-      })
+      }
+
+      options.merge(:if => evaluator)
     end
 
     class Conditional
@@ -33,6 +36,15 @@ module CallCenter
       def evaluate(model)
         result = model.send(@name)
         if? ? result : !result
+      end
+    end
+
+    class Evaluator < Proc
+      attr_reader :stack
+
+      def initialize(stack)
+        @stack = stack
+        super()
       end
     end
 
