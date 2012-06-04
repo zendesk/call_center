@@ -3,6 +3,7 @@ require 'state_machine'
 require 'call_center/state_machine_ext'
 require 'call_center/flow_callback'
 require 'call_center/deferred_callbacks'
+require 'call_center/conditional_stack'
 
 module CallCenter
   def self.included(base)

@@ -6,9 +6,91 @@ require 'test/examples/legacy_call'
 require 'test/examples/call'
 require 'test/examples/non_standard_call'
 require 'test/examples/multiple_flow_call'
+require 'test/examples/dynamic_transition_call'
 
 class CallCenterTest < Test::Unit::TestCase
   include CallCenter::Test::DSL
+
+  context "dynamic transition workflow" do
+    setup do
+      @call = DynamicTransitionCall.new
+      @call.stubs(:notify)
+    end
+
+    context "agents available on phone" do
+      setup do
+        @call.stubs(:agents_available?).returns(true)
+        @call.stubs(:via_phone?).returns(true)
+      end
+
+      should "transition to routing on phone" do
+        @call.incoming_call!
+        assert_equal 'routing_on_phone', @call.state
+      end
+    end
+
+    context "agents available on client" do
+      setup do
+        @call.stubs(:agents_available?).returns(true)
+        @call.stubs(:via_phone?).returns(false)
+      end
+
+      should "transition to routing on client" do
+        @call.incoming_call!
+        assert_equal 'routing_on_client', @call.state
+      end
+    end
+
+    context "no agents available" do
+      setup do
+        @call.stubs(:agents_available?).returns(false)
+        @call.stubs(:via_phone?).returns(true)
+        @call.stubs(:voicemail_full?).returns(false)
+      end
+
+      should "transition to voicemail" do
+        @call.incoming_call!
+        assert_equal 'voicemail', @call.state
+      end
+    end
+
+    context "no agents available when voicemail is full" do
+      setup do
+        @call.stubs(:agents_available?).returns(false)
+        @call.stubs(:via_phone?).returns(false) # Doesn't matter
+        @call.stubs(:voicemail_full?).returns(true)
+      end
+
+      should "transition to voicemail" do
+        @call.incoming_call!
+        assert_equal 'cancelled', @call.state
+      end
+    end
+
+    context "out of area" do
+      setup do
+        @call.state = 'routing_on_client'
+        @call.stubs(:out_of_area?).returns(true)
+      end
+
+      should "transition to cancelled" do
+        @call.picks_up!
+        assert_equal 'cancelled', @call.state
+      end
+    end
+
+    context "not out of area" do
+      setup do
+        @call.state = 'routing_on_client'
+        @call.stubs(:out_of_area?).returns(false)
+      end
+
+      should "transition to in_conference" do
+        @call.picks_up!
+        assert_equal 'in_conference', @call.state
+      end
+    end
+  end
 
   [:call, :legacy_call].each do |call_type|
     context "#{call_type.to_s.gsub('_', ' ')} workflow" do

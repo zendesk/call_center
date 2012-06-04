@@ -65,6 +65,8 @@ end
 
 # Extension for StateMachine::AlternateMachine to provide render blocks inside a state definition
 class StateMachine::AlternateMachine
+  attr_accessor :flow_stacks
+
   def response(state_name = nil, &blk)
     if @from_state
       @queued_sends << [[:response, @from_state], blk]
@@ -91,5 +93,38 @@ class StateMachine::AlternateMachine
       event(event_name, options)
     end
     @queued_sends << [[:flow_actors, name], blk]
+  end
+
+  def event_with_blocks(*args, &blk)
+    options = args.extract_options!
+
+    if flow_stacks && flow_stacks.any?
+      options = flow_stacks.inject(options)
+    end
+
+    event_without_blocks(*args.push(options), &blk)
+  end
+
+  alias_method :event_without_blocks, :event
+  alias_method :event, :event_with_blocks
+
+  def flow_if(conditional, &blk)
+    self.flow_stacks ||= CallCenter::ConditionalStack.new
+    begin
+      self.flow_stacks << CallCenter::ConditionalStack::IfConditional.new(conditional)
+      yield if block_given?
+    ensure
+      self.flow_stacks.pop
+    end
+  end
+
+  def flow_unless(conditional, &blk)
+    self.flow_stacks ||= CallCenter::ConditionalStack.new
+    begin
+      self.flow_stacks << CallCenter::ConditionalStack::UnlessConditional.new(conditional)
+      yield if block_given?
+    ensure
+      self.flow_stacks.pop
+    end
   end
 end
