@@ -40,7 +40,13 @@ Rcov::RcovTask.new do |test|
   test.rcov_opts << '--exclude "gems/*,lib/call_center/core_ext/object_instance_exec.rb"'
 end
 
-task :default => :test
+namespace :test do
+  Rake::TestTask.new(:dsl) do |t|
+    t.pattern = "minitest/**/*_test.rb"
+  end
+end
+
+task :default => ['test', 'test:dsl']
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
