@@ -3,6 +3,8 @@ Call Center
 
 Support for defining call center workflows.
 
+[![Build Status](https://secure.travis-ci.org/zendesk/call_center.png)](http://travis-ci.org/zendesk/call_center)
+
 Overview
 --------
 Call Center streamlines the process of defining multi-party call workflows in your application. Particularly, with [Twilio](http://www.twilio.com/docs) in mind.
