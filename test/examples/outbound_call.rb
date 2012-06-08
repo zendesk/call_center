@@ -1,0 +1,3 @@
+class SubclassCall < Call
+
+end

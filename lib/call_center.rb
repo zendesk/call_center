@@ -54,6 +54,10 @@ module CallCenter
     def current_state_machine
       self.state_machines[self.call_flow_state_machine_name]
     end
+
+    def inherited(subclass)
+      subclass.call_flow_state_machine_name ||= self.call_flow_state_machine_name
+    end
   end
 
   module InstanceMethods
