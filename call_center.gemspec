@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{call_center}
-  s.version = "0.1.2"
+  s.name = "call_center"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = %q{2012-06-04}
-  s.description = %q{Support for describing call center workflows}
-  s.email = %q{hhsu@zendesk.com}
+  s.date = "2012-06-19"
+  s.description = "Support for describing call center workflows"
+  s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.md"
@@ -48,13 +48,14 @@ Gem::Specification.new do |s|
     "test/examples/legacy_call.rb",
     "test/examples/multiple_flow_call.rb",
     "test/examples/non_standard_call.rb",
+    "test/examples/outbound_call.rb",
     "test/helper.rb"
   ]
-  s.homepage = %q{http://github.com/zendesk/call_center}
+  s.homepage = "http://github.com/zendesk/call_center"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.3}
-  s.summary = %q{Support for describing call center workflows}
+  s.rubygems_version = "1.8.24"
+  s.summary = "Support for describing call center workflows"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
