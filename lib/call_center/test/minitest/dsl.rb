@@ -134,8 +134,7 @@ module CallCenter
               end
               state_field = defined?(call_center_state_field) ? call_center_state_field.to_sym : :state
               subject.send(:"#{state_field}=", from)
-              subject.send(:"#{event}!")
-              subject.send(state_field).must_equal(to)
+              helper.verify_send(subject, event, state_field, to)
               if subject.respond_to?(:call_flow_run_deferred)
                 subject.call_flow_run_deferred(:before_transition)
                 subject.call_flow_run_deferred(:after_transition)
@@ -144,10 +143,35 @@ module CallCenter
             end
           end
 
+          def send_event(subject, event)
+            subject.send(:"#{event}!")
+          end
+
+          def verify_send(subject, event, state_field, to)
+            send_event(subject, event)
+            subject.send(state_field).must_equal(to)
+          end
+
           private
 
           def description
             "should flow on ##{@event}! from :#{@from} to :#{@to}"
+          end
+        end
+
+        class ItShouldNotFlow < ItShouldFlow
+          def send_event(subject, event)
+            subject.send(:"#{event}")
+          end
+
+          def verify_send(subject, event, state_field, to)
+            send_event(subject, event).wont_equal(true)
+          end
+
+          private
+
+          def description
+            "should not flow on ##{@event}! from :#{@from}"
           end
         end
 
@@ -205,6 +229,10 @@ module CallCenter
 
             def self.it_should_flow(&block)
               CallCenter::Test::MiniTest::DSL::ItShouldFlow.new(self, &block).verify
+            end
+
+            def self.it_should_not_flow(&block)
+              CallCenter::Test::MiniTest::DSL::ItShouldNotFlow.new(self, &block).verify
             end
 
             def self.it_should_render(&block)

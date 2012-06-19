@@ -1,8 +1,8 @@
-require 'minitest/helper'
+require File.expand_path('../../helper', File.dirname(__FILE__))
 require 'call_center/test/minitest/dsl'
 
-require 'test/examples/call'
-require 'test/examples/dynamic_transition_call'
+require File.expand_path('../../../test/examples/call', File.dirname(__FILE__))
+require File.expand_path('../../../test/examples/dynamic_transition_call', File.dirname(__FILE__))
 
 describe CallCenter::Test::MiniTest::DSL do
 
@@ -20,6 +20,8 @@ describe CallCenter::Test::MiniTest::DSL do
     it_should_flow { on(:something_crazy_happens).from(:initial).to(:uh_oh) }
 
     it_should_flow { on(:customer_hangs_up).from(:cancelled).to(:cancelled).expects(:cancelled) { |e| e.never } }
+
+    it_should_not_flow { on(:incoming_call).from(:voicemail) }
   end
 
   describe DynamicTransitionCall do

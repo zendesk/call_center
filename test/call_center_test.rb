@@ -2,12 +2,13 @@ require 'helper'
 
 require 'call_center/test/dsl'
 
-require 'test/examples/legacy_call'
-require 'test/examples/call'
-require 'test/examples/outbound_call'
-require 'test/examples/non_standard_call'
-require 'test/examples/multiple_flow_call'
-require 'test/examples/dynamic_transition_call'
+require File.expand_path('../test/examples/legacy_call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/legacy_call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/outbound_call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/non_standard_call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/multiple_flow_call', File.dirname(__FILE__))
+require File.expand_path('../test/examples/dynamic_transition_call', File.dirname(__FILE__))
 
 class CallCenterTest < Test::Unit::TestCase
   include CallCenter::Test::DSL
