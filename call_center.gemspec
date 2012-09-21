@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = "2012-06-19"
+  s.date = "2012-09-21"
   s.description = "Support for describing call center workflows"
   s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
@@ -48,7 +48,6 @@ Gem::Specification.new do |s|
     "test/examples/legacy_call.rb",
     "test/examples/multiple_flow_call.rb",
     "test/examples/non_standard_call.rb",
-    "test/examples/outbound_call.rb",
     "test/helper.rb"
   ]
   s.homepage = "http://github.com/zendesk/call_center"
