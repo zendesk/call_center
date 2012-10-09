@@ -1,10 +1,9 @@
-source 'http://rubygems.org'
+source :rubygems
 
-group :development do
-  gem 'shoulda', '>= 0'
-  gem 'bundler', '~> 1.0.0'
+group :dev do
+  gem 'shoulda'
   gem 'jeweler', '~> 1.6.4'
-  gem 'rcov', '>= 0'
+  gem 'rcov'
   gem 'test-unit', :require => 'test/unit'
   gem 'guard'
   gem 'guard-test'
