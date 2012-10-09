@@ -4,15 +4,14 @@ group :dev do
   gem 'shoulda'
   gem 'jeweler', '~> 1.6.4'
   gem 'rcov'
-  gem 'test-unit', :require => 'test/unit'
   gem 'guard'
   gem 'guard-test'
   gem 'actionpack', '~> 2.3.10'
   gem 'mocha'
-  gem 'bourne'
+  gem 'bourne', :github => "grosser/bourne", :ref => "54aa1b7" # https://github.com/thoughtbot/bourne/pull/13
   gem 'pre-commit'
-  gem 'minitest', '2.6.1'
-  gem 'minitest-reporters', :require => 'minitest/reporters'
+  gem 'minitest', '~> 3.3.0' # dots disappear at >= 3.4
+  gem 'minitest-reporters'
   gem 'guard-shell'
 end
 

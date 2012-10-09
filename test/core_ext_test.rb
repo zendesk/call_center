@@ -1,7 +1,6 @@
 require 'helper'
 
 class MyObject
-
 end
 
 class CoreExtTest < Test::Unit::TestCase

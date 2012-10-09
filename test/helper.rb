@@ -1,8 +1,11 @@
 require 'bundler/setup'
-require 'test/unit'
+require 'minitest/autorun'
 require 'shoulda'
 require 'mocha'
 require 'bourne'
+
+require 'minitest/reporters'
+MiniTest::Reporters.use! MiniTest::Reporters::DefaultReporter.new
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
