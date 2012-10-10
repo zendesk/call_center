@@ -6,7 +6,7 @@ group :dev do
   gem 'rcov'
   gem 'guard'
   gem 'guard-test'
-  gem 'actionpack', '~> 2.3.10'
+  gem 'actionpack', '~> 2.3.14'
   gem 'mocha'
   gem 'bourne', :github => "grosser/bourne", :ref => "54aa1b7" # https://github.com/thoughtbot/bourne/pull/13
   gem 'pre-commit'
