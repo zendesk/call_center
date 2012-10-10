@@ -1,6 +1,6 @@
 source :rubygems
 
-group :dev do
+group :development do
   gem 'shoulda'
   gem 'jeweler', '~> 1.6.4'
   gem 'rcov'

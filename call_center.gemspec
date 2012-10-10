@@ -9,11 +9,10 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = "2012-09-21"
+  s.date = "2012-10-10"
   s.description = "Support for describing call center workflows"
   s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
-    "LICENSE.txt",
     "README.md"
   ]
   s.files = [
@@ -24,7 +23,7 @@ Gem::Specification.new do |s|
     "Gemfile.lock",
     "Guardfile",
     "Guardfile.minitest",
-    "LICENSE.txt",
+    "MIT-LICENSE.txt",
     "README.md",
     "Rakefile",
     "VERSION",
@@ -63,34 +62,30 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<builder>, [">= 0"])
       s.add_runtime_dependency(%q<hsume2-state_machine>, ["~> 1.0.5"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
-      s.add_development_dependency(%q<test-unit>, [">= 0"])
       s.add_development_dependency(%q<guard>, [">= 0"])
       s.add_development_dependency(%q<guard-test>, [">= 0"])
-      s.add_development_dependency(%q<actionpack>, ["~> 2.3.10"])
+      s.add_development_dependency(%q<actionpack>, ["~> 2.3.14"])
       s.add_development_dependency(%q<mocha>, [">= 0"])
       s.add_development_dependency(%q<bourne>, [">= 0"])
       s.add_development_dependency(%q<pre-commit>, [">= 0"])
-      s.add_development_dependency(%q<minitest>, ["= 2.6.1"])
+      s.add_development_dependency(%q<minitest>, ["~> 3.3.0"])
       s.add_development_dependency(%q<minitest-reporters>, [">= 0"])
       s.add_development_dependency(%q<guard-shell>, [">= 0"])
     else
       s.add_dependency(%q<builder>, [">= 0"])
       s.add_dependency(%q<hsume2-state_machine>, ["~> 1.0.5"])
       s.add_dependency(%q<shoulda>, [">= 0"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_dependency(%q<rcov>, [">= 0"])
-      s.add_dependency(%q<test-unit>, [">= 0"])
       s.add_dependency(%q<guard>, [">= 0"])
       s.add_dependency(%q<guard-test>, [">= 0"])
-      s.add_dependency(%q<actionpack>, ["~> 2.3.10"])
+      s.add_dependency(%q<actionpack>, ["~> 2.3.14"])
       s.add_dependency(%q<mocha>, [">= 0"])
       s.add_dependency(%q<bourne>, [">= 0"])
       s.add_dependency(%q<pre-commit>, [">= 0"])
-      s.add_dependency(%q<minitest>, ["= 2.6.1"])
+      s.add_dependency(%q<minitest>, ["~> 3.3.0"])
       s.add_dependency(%q<minitest-reporters>, [">= 0"])
       s.add_dependency(%q<guard-shell>, [">= 0"])
     end
@@ -98,17 +93,15 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<builder>, [">= 0"])
     s.add_dependency(%q<hsume2-state_machine>, ["~> 1.0.5"])
     s.add_dependency(%q<shoulda>, [">= 0"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
     s.add_dependency(%q<rcov>, [">= 0"])
-    s.add_dependency(%q<test-unit>, [">= 0"])
     s.add_dependency(%q<guard>, [">= 0"])
     s.add_dependency(%q<guard-test>, [">= 0"])
-    s.add_dependency(%q<actionpack>, ["~> 2.3.10"])
+    s.add_dependency(%q<actionpack>, ["~> 2.3.14"])
     s.add_dependency(%q<mocha>, [">= 0"])
     s.add_dependency(%q<bourne>, [">= 0"])
     s.add_dependency(%q<pre-commit>, [">= 0"])
-    s.add_dependency(%q<minitest>, ["= 2.6.1"])
+    s.add_dependency(%q<minitest>, ["~> 3.3.0"])
     s.add_dependency(%q<minitest-reporters>, [">= 0"])
     s.add_dependency(%q<guard-shell>, [">= 0"])
   end
