@@ -8,7 +8,7 @@ group :development do
   gem 'guard-test'
   gem 'actionpack', '~> 2.3.14'
   gem 'mocha'
-  gem 'bourne', :github => "grosser/bourne", :ref => "54aa1b7" # https://github.com/thoughtbot/bourne/pull/13
+  gem 'bourne', '>= 1.2.0'
   gem 'pre-commit'
   gem 'minitest', '~> 3.3.0' # dots disappear at >= 3.4
   gem 'minitest-reporters', :platform => :ruby_19 # https://github.com/busyloop/powerbar/pull/10
