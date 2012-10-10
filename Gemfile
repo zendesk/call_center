@@ -11,7 +11,7 @@ group :development do
   gem 'bourne', :github => "grosser/bourne", :ref => "54aa1b7" # https://github.com/thoughtbot/bourne/pull/13
   gem 'pre-commit'
   gem 'minitest', '~> 3.3.0' # dots disappear at >= 3.4
-  gem 'minitest-reporters'
+  gem 'minitest-reporters', :platform => :ruby_19 # https://github.com/busyloop/powerbar/pull/10
   gem 'guard-shell'
 end
 
