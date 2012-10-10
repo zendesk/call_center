@@ -1,8 +1,21 @@
+require 'action_pack/version'
+if ActionPack::VERSION::MAJOR == 2
+  require 'action_controller/assertions/selector_assertions'
+else
+  require 'action_dispatch/testing/assertions/selector'
+end
+
 module CallCenter
   module Test
     module DSL
       def self.included(base)
-        base.send(:include, ActionController::Assertions::SelectorAssertions)
+        if ActionPack::VERSION::MAJOR == 2
+          base.send(:include, ActionController::Assertions::SelectorAssertions)
+        else
+          base.send(:include, ActionController::Assertions::SelectorAssertions)
+          include ActionDispatch::Assertions::SelectorAssertions
+        end
+
         base.extend(ClassMethods)
         base.class_eval do
           def response_from_page_or_rjs_with_body

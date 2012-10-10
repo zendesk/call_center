@@ -1,5 +1,10 @@
+require 'action_pack/version'
 require 'action_controller/vendor/html-scanner'
-require 'action_controller/assertions/selector_assertions'
+if ActionPack::VERSION::MAJOR == 2
+  require 'action_controller/assertions/selector_assertions'
+else
+  require 'action_dispatch/testing/assertions/selector'
+end
 require 'test/unit/assertions'
 
 module CallCenter
@@ -225,7 +230,11 @@ module CallCenter
 
         if defined?(::MiniTest::Spec)
           ::MiniTest::Spec.class_eval do
-            include ActionController::Assertions::SelectorAssertions
+            if ActionPack::VERSION::MAJOR == 2
+              include ActionController::Assertions::SelectorAssertions
+            else
+              include ActionDispatch::Assertions::SelectorAssertions
+            end
 
             def self.it_should_flow(&block)
               CallCenter::Test::MiniTest::DSL::ItShouldFlow.new(self, &block).verify
