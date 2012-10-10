@@ -5,7 +5,6 @@ require File.expand_path('../../../test/examples/call', File.dirname(__FILE__))
 require File.expand_path('../../../test/examples/dynamic_transition_call', File.dirname(__FILE__))
 
 describe CallCenter::Test::MiniTest::DSL do
-
   describe Call do
     subject { Call.new }
     let(:call_center_state_field) { :state }
@@ -37,5 +36,4 @@ describe CallCenter::Test::MiniTest::DSL do
     it_should_flow { on(:picks_up).from(:routing_on_client).to(:in_conference).unless(:out_of_area?) }
     it_should_flow { on(:picks_up).from(:routing_on_client).to(:cancelled).if(:out_of_area?) }
   end
-
 end
