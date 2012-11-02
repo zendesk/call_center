@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "call_center"
-  s.version = "0.1.4"
+  s.version = "0.1.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = "2012-10-10"
+  s.date = "2012-11-02"
   s.description = "Support for describing call center workflows"
   s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
@@ -68,7 +68,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<guard-test>, [">= 0"])
       s.add_development_dependency(%q<actionpack>, ["~> 2.3.14"])
       s.add_development_dependency(%q<mocha>, [">= 0"])
-      s.add_development_dependency(%q<bourne>, [">= 0"])
+      s.add_development_dependency(%q<bourne>, [">= 1.2.0"])
       s.add_development_dependency(%q<pre-commit>, [">= 0"])
       s.add_development_dependency(%q<minitest>, ["~> 3.3.0"])
       s.add_development_dependency(%q<minitest-reporters>, [">= 0"])
@@ -83,7 +83,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<guard-test>, [">= 0"])
       s.add_dependency(%q<actionpack>, ["~> 2.3.14"])
       s.add_dependency(%q<mocha>, [">= 0"])
-      s.add_dependency(%q<bourne>, [">= 0"])
+      s.add_dependency(%q<bourne>, [">= 1.2.0"])
       s.add_dependency(%q<pre-commit>, [">= 0"])
       s.add_dependency(%q<minitest>, ["~> 3.3.0"])
       s.add_dependency(%q<minitest-reporters>, [">= 0"])
@@ -99,7 +99,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<guard-test>, [">= 0"])
     s.add_dependency(%q<actionpack>, ["~> 2.3.14"])
     s.add_dependency(%q<mocha>, [">= 0"])
-    s.add_dependency(%q<bourne>, [">= 0"])
+    s.add_dependency(%q<bourne>, [">= 1.2.0"])
     s.add_dependency(%q<pre-commit>, [">= 0"])
     s.add_dependency(%q<minitest>, ["~> 3.3.0"])
     s.add_dependency(%q<minitest-reporters>, [">= 0"])
