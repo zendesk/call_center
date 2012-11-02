@@ -12,8 +12,7 @@ module CallCenter
         if ActionPack::VERSION::MAJOR == 2
           base.send(:include, ActionController::Assertions::SelectorAssertions)
         else
-          base.send(:include, ActionController::Assertions::SelectorAssertions)
-          include ActionDispatch::Assertions::SelectorAssertions
+          base.send(:include, ActionDispatch::Assertions::SelectorAssertions)
         end
 
         base.extend(ClassMethods)
