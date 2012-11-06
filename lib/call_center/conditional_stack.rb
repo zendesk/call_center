@@ -18,6 +18,7 @@ module CallCenter
 
     def inject(options)
       current_stack = @stack.dup
+      current_stack << IfConditional.new(options[:if]) if options[:if]
 
       evaluator = Evaluator.new(current_stack) { |model|
         current_stack.map { |conditional| conditional.evaluate(model) }.all?

@@ -14,6 +14,8 @@ class DynamicTransitionCall
         end
 
         flow_unless :via_phone? do
+          event :incoming_call, :to => :routing_on_mobile_client, :if => :on_mobile?
+          event :incoming_call, :to => :routing_on_webrtc, :unless => :prefer_flash?
           event :incoming_call, :to => :routing_on_client
         end
       end

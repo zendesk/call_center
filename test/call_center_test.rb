@@ -15,6 +15,8 @@ class CallCenterTest < Test::Unit::TestCase
     setup do
       @call = DynamicTransitionCall.new
       @call.stubs(:notify)
+      @call.stubs(:on_mobile?).returns(false)
+      @call.stubs(:prefer_flash?).returns(true)
     end
 
     context "agents available on phone" do
@@ -38,6 +40,32 @@ class CallCenterTest < Test::Unit::TestCase
       should "transition to routing on client" do
         @call.incoming_call!
         assert_equal 'routing_on_client', @call.state
+      end
+    end
+
+    context "agents available who do not prefer flash" do
+      setup do
+        @call.stubs(:agents_available?).returns(true)
+        @call.stubs(:via_phone?).returns(false)
+        @call.stubs(:prefer_flash?).returns(false)
+      end
+
+      should "transition to routing on client" do
+        @call.incoming_call!
+        assert_equal 'routing_on_webrtc', @call.state
+      end
+    end
+
+    context "agents available on mobile client" do
+      setup do
+        @call.stubs(:agents_available?).returns(true)
+        @call.stubs(:via_phone?).returns(false)
+        @call.stubs(:on_mobile?).returns(true)
+      end
+
+      should "transition to routing on client" do
+        @call.incoming_call!
+        assert_equal 'routing_on_mobile_client', @call.state
       end
     end
 
