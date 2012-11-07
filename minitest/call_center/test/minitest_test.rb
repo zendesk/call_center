@@ -27,7 +27,10 @@ describe CallCenter::Test::MiniTest::DSL do
     subject { DynamicTransitionCall.new }
     let(:call_center_state_field) { :state }
 
-    it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_client).if(:agents_available?).unless(:via_phone?) }
+    it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_client).if(:agents_available?).unless(:via_phone?).if(:prefer_flash?) }
+    it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_client).if(:agents_available?).unless(:via_phone?).unless(:on_mobile?).if(:prefer_flash?) }
+    it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_mobile_client).if(:agents_available?).unless(:via_phone?).if(:on_mobile?) }
+    it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_webrtc).if(:agents_available?).unless(:via_phone?).unless(:on_mobile?).unless(:prefer_flash?) }
     it_should_flow { on(:incoming_call).from(:initial).to(:routing_on_phone).if(:agents_available?).if(:via_phone?) }
 
     it_should_flow { on(:incoming_call).from(:initial).to(:voicemail).unless(:agents_available?).unless(:voicemail_full?) }
