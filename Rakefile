@@ -12,7 +12,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{Support for describing call center workflows}
   gem.email = "hhsu@zendesk.com"
   gem.authors = ["Henry Hsu"]
-  # dependencies defined in Gemfile
+  gem.license = "Apache License Version 2.0"
 end
 Jeweler::RubygemsDotOrgTasks.new
 

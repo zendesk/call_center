@@ -9,10 +9,11 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = "2012-11-02"
+  s.date = "2013-02-19"
   s.description = "Support for describing call center workflows"
   s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
+    "LICENSE",
     "README.md"
   ]
   s.files = [
@@ -23,10 +24,11 @@ Gem::Specification.new do |s|
     "Gemfile.lock",
     "Guardfile",
     "Guardfile.minitest",
-    "MIT-LICENSE.txt",
+    "LICENSE",
     "README.md",
     "Rakefile",
     "VERSION",
+    "call_center-0.1.3.gem",
     "call_center.gemspec",
     "init.rb",
     "lib/call_center.rb",
@@ -50,7 +52,7 @@ Gem::Specification.new do |s|
     "test/helper.rb"
   ]
   s.homepage = "http://github.com/zendesk/call_center"
-  s.licenses = ["MIT"]
+  s.licenses = ["Apache License Version 2.0"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "Support for describing call center workflows"
