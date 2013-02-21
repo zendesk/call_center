@@ -6,7 +6,7 @@ group :development do
   gem 'rcov'
   gem 'guard'
   gem 'guard-test'
-  gem 'actionpack', '~> 2.3.14'
+  gem 'actionpack', '~> 2.3.15'
   gem 'mocha'
   gem 'bourne', '>= 1.2.0'
   gem 'pre-commit'
