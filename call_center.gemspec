@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henry Hsu"]
-  s.date = "2013-02-19"
+  s.date = "2013-02-21"
   s.description = "Support for describing call center workflows"
   s.email = "hhsu@zendesk.com"
   s.extra_rdoc_files = [
@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
-    "call_center-0.1.3.gem",
     "call_center.gemspec",
     "init.rb",
     "lib/call_center.rb",
