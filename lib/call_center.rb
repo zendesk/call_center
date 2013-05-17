@@ -1,3 +1,4 @@
+require 'builder'
 require 'call_center/core_ext/object_instance_exec'
 require 'state_machine'
 require 'call_center/state_machine_ext'
