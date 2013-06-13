@@ -16,11 +16,6 @@ Jeweler::Tasks.new do |gem|
 end
 Jeweler::RubygemsDotOrgTasks.new
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.pattern = 'test/**/*_test.rb'
-  test.verbose = true
-end
 
 require 'rcov/rcovtask'
 Rcov::RcovTask.new do |test|
@@ -29,17 +24,22 @@ Rcov::RcovTask.new do |test|
   test.rcov_opts << '--exclude "gems/*,lib/call_center/core_ext/object_instance_exec.rb"'
 end
 
+require 'rake/testtask'
+task :test => ["test:unit", "test:dsl"]
 namespace :test do
+  Rake::TestTask.new(:unit) do |test|
+    test.pattern = 'test/**/*_test.rb'
+    test.verbose = true
+  end
+
   Rake::TestTask.new(:dsl) do |t|
     t.pattern = "minitest/**/*_test.rb"
   end
 end
 
-task :default => ['test', 'test:dsl']
-
 desc "Run all tests."
-task :all do
-  sh "rake appraisal:install appraisal:relativize && rake appraisal test test:dsl"
+task :default do
+  sh "rake appraisal:install appraisal:relativize && rake appraisal test"
 end
 
 namespace :appraisal do
