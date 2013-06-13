@@ -256,12 +256,16 @@ module CallCenter
             end
 
             def response_from_page_or_rjs
-              HTML::Document.new(@_body).root
+              html_document.root
             end
 
             def body(text, debug = false)
               puts text if debug
               @_body = text
+            end
+
+            def html_document
+              HTML::Document.new(@_body)
             end
 
             private

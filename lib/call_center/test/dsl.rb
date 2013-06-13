@@ -3,7 +3,11 @@ require 'cgi'
 if ActionPack::VERSION::MAJOR == 2
   require 'action_controller/assertions/selector_assertions'
 else
-  require 'action_dispatch/testing/assertions/selector'
+  if ActionPack::VERSION::MINOR == 0
+    require 'action_dispatch/testing/assertions/selector'
+  else
+    require 'action_dispatch/testing/assertions'
+  end
 end
 
 module CallCenter
@@ -18,8 +22,12 @@ module CallCenter
 
         base.extend(ClassMethods)
         base.class_eval do
+          def html_document
+            HTML::Document.new(CGI.unescapeHTML(@body))
+          end
+
           def response_from_page_or_rjs_with_body
-            HTML::Document.new(CGI.unescapeHTML(@body)).root
+            html_document.root
           end
           alias_method_chain :response_from_page_or_rjs, :body
         end
