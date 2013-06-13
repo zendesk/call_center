@@ -9,6 +9,10 @@ gemfile:
   - gemfiles/rails32.gemfile
 matrix:
   exclude:
+    - rvm: ree
+      gemfile: gemfiles/rails30.gemfile
+    - rvm: ree
+      gemfile: gemfiles/rails32.gemfile
     - rvm: 2.0
       gemfile: gemfiles/rails2.gemfile
     - rvm: 2.0

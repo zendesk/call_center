@@ -3,14 +3,13 @@
 source "https://rubygems.org"
 
 gem "shoulda"
-gem "rcov"
 gem "guard"
 gem "guard-test"
 gem "actionpack", "~> 2.3.15"
 gem "mocha"
 gem "bourne", ">= 1.2.0"
 gem "minitest", "~> 3.3.0"
-gem "minitest-reporters", :platform=>:ruby_19
+gem "minitest-reporters", :platform=>[:ruby_19, :ruby_20]
 gem "guard-shell"
 gem "appraisal"
 gem "bump"

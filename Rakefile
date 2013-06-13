@@ -3,12 +3,12 @@ require 'appraisal'
 require 'bundler/gem_tasks'
 require 'bump/tasks'
 
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.pattern = 'test/**/*_test.rb'
-  test.verbose = true
-  test.rcov_opts << '--exclude "gems/*,lib/call_center/core_ext/object_instance_exec.rb"'
-end
+#require 'rcov/rcovtask'
+#Rcov::RcovTask.new do |test|
+#  test.pattern = 'test/**/*_test.rb'
+#  test.verbose = true
+#  test.rcov_opts << '--exclude "gems/*,lib/call_center/core_ext/object_instance_exec.rb"'
+#end
 
 require 'rake/testtask'
 task :test => ["test:unit", "test:dsl"]

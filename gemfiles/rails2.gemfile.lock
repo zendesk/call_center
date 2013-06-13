@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    call_center (1.0.2)
+    call_center (1.0.3)
       builder
       hsume2-state_machine (~> 1.0.5)
 
@@ -43,7 +43,6 @@ GEM
       hashie (>= 1.1.0)
     rack (1.1.6)
     rake (10.0.4)
-    rcov (0.9.9)
     shoulda (3.0.1)
       shoulda-context (~> 1.0.0)
       shoulda-matchers (~> 1.0.0)
@@ -67,5 +66,4 @@ DEPENDENCIES
   minitest (~> 3.3.0)
   minitest-reporters
   mocha
-  rcov
   shoulda
