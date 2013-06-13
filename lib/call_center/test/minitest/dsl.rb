@@ -1,10 +1,13 @@
 require 'action_pack/version'
-require 'action_controller/vendor/html-scanner'
+
 if ActionPack::VERSION::MAJOR == 2
   require 'action_controller/assertions/selector_assertions'
 else
   require 'action_dispatch/testing/assertions/selector'
+  require 'active_support/core_ext/class/attribute_accessors' # do not blow up with undefined method cattr_accessor
+  require 'active_support/core_ext/string/encoding' # do not blow up with undefined method encoding_aware?
 end
+require 'action_controller/vendor/html-scanner'
 require 'test/unit/assertions'
 
 module CallCenter

@@ -1,6 +1,6 @@
 # encoding: utf-8
-require 'rubygems'
 require 'bundler/setup'
+require 'appraisal'
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
@@ -37,12 +37,17 @@ end
 
 task :default => ['test', 'test:dsl']
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+desc "Run all tests."
+task :all do
+  sh "rake appraisal:install appraisal:relativize && rake appraisal test test:dsl"
+end
 
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "twilio_flow #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+namespace :appraisal do
+  task :relativize do
+    Dir["gemfiles/*.lock"].each do |file|
+      content = File.read(file)
+      content.gsub!(File.dirname(__FILE__), "../")
+      File.open(file, "w") { |f| f.write(content) }
+    end
+  end
 end

@@ -1,4 +1,5 @@
 require 'action_pack/version'
+require 'cgi'
 if ActionPack::VERSION::MAJOR == 2
   require 'action_controller/assertions/selector_assertions'
 else
