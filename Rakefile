@@ -1,21 +1,7 @@
-# encoding: utf-8
 require 'bundler/setup'
 require 'appraisal'
-
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "call_center"
-  gem.homepage = "http://github.com/zendesk/call_center"
-  gem.license = "MIT"
-  gem.summary = %Q{Support for describing call center workflows}
-  gem.description = %Q{Support for describing call center workflows}
-  gem.email = "hhsu@zendesk.com"
-  gem.authors = ["Henry Hsu"]
-  gem.license = "Apache License Version 2.0"
-end
-Jeweler::RubygemsDotOrgTasks.new
-
+require 'bundler/gem_tasks'
+require 'bump/tasks'
 
 require 'rcov/rcovtask'
 Rcov::RcovTask.new do |test|

@@ -1,3 +1,10 @@
+PATH
+  remote: ../
+  specs:
+    call_center (1.0.2)
+      builder
+      hsume2-state_machine (~> 1.0.5)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -24,11 +31,9 @@ GEM
     bourne (1.4.0)
       mocha (~> 0.13.2)
     builder (2.1.2)
+    bump (0.4.2)
     erubis (2.6.6)
       abstract (>= 1.0.0)
-    execjs (1.4.0)
-      multi_json (~> 1.0)
-    git (1.2.5)
     guard (0.7.0)
       thor (~> 0.14.6)
     guard-shell (0.1.1)
@@ -39,10 +44,6 @@ GEM
     hashie (2.0.5)
     hsume2-state_machine (1.0.5)
     i18n (0.5.0)
-    jeweler (1.6.4)
-      bundler (~> 1.0)
-      git (>= 1.2.5)
-      rake
     metaclass (0.0.1)
     minitest (3.3.0)
     minitest-reporters (0.14.20)
@@ -52,12 +53,9 @@ GEM
       powerbar
     mocha (0.13.3)
       metaclass (~> 0.0.1)
-    multi_json (1.7.6)
     powerbar (1.0.11)
       ansi (~> 1.4.0)
       hashie (>= 1.1.0)
-    pre-commit (0.8.0)
-      execjs
     rack (1.2.8)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
@@ -82,15 +80,13 @@ DEPENDENCIES
   actionpack (= 3.0.20)
   appraisal
   bourne (>= 1.2.0)
-  builder
+  bump
+  call_center!
   guard
   guard-shell
   guard-test
-  hsume2-state_machine (~> 1.0.5)
-  jeweler (~> 1.6.4)
   minitest (~> 3.3.0)
   minitest-reporters
   mocha
-  pre-commit
   rcov
   shoulda
