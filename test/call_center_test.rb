@@ -128,6 +128,10 @@ class CallCenterTest < Test::Unit::TestCase
         @call.stubs(:notify)
       end
 
+      should "have initial state" do
+        assert_equal 'initial', @call.state
+      end
+
       context "agents available" do
         setup do
           @call.stubs(:agents_available?).returns(true)
