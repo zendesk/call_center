@@ -4,10 +4,6 @@ class DynamicTransitionCall
 
   call_flow :state, :initial => :initial do
     state :initial do
-      response do |x|
-        x.Say "Hello World"
-      end
-
       flow_if :agents_available? do
         flow_if :via_phone? do
           event :incoming_call, :to => :routing_on_phone

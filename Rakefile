@@ -28,6 +28,12 @@ task :default do
   sh "rake appraisal:install appraisal:relativize && rake appraisal test"
 end
 
+desc "Run all tests with coverage."
+task :coverage do
+  ENV['COVERAGE'] = 'true'
+  Rake::Task['default'].invoke
+end
+
 namespace :appraisal do
   task :relativize do
     Dir["gemfiles/*.lock"].each do |file|

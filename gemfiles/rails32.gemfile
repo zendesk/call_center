@@ -12,6 +12,7 @@ gem "minitest-reporters", :platform=>[:ruby_19, :ruby_20]
 gem "guard-shell"
 gem "appraisal"
 gem "bump"
+gem "simplecov", :require=>false, :group=>:test
 gem "actionpack", "3.2.13"
 
 gemspec :path=>"../"

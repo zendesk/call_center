@@ -1,4 +1,9 @@
 require 'bundler/setup'
+require 'simplecov'
+if ENV['COVERAGE']
+  SimpleCov.start
+  SimpleCov.command_name "Unit Tests (#{File.basename(ENV['BUNDLE_GEMFILE'])})"
+end
 require 'test/unit'
 require 'shoulda'
 require 'mocha'
