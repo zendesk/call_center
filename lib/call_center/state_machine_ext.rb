@@ -19,6 +19,14 @@ class StateMachine::Machine
     @callback_blocks << CallCenter::AfterFlowCallback.create(state_name, scope, options, blk)
   end
 
+  def actor(name, &blk)
+    StateMachine::StateContext.send(:define_method, name.to_sym) do |event_name, options|
+      event_name = :"#{name}_#{event_name}"
+      event(event_name, options)
+    end
+    flow_actors(name, &blk)
+  end
+
   def block_accessor(accessor, for_state)
     return unless respond_to?(accessor)
     blocks = send(accessor)
@@ -61,52 +69,43 @@ class StateMachine::Machine
       end
     end
   end
+
+  def duplicate_to(clazz)
+    new_copy = self.clone
+    new_copy.owner_class = clazz
+    new_copy.define_helpers
+    new_copy.define_scopes(@plural)
+    new_copy.events.each { |event| event.send(:add_actions) }
+    new_copy.states.each { |state| state.send(:add_predicate) }
+    new_copy
+  end
 end
 
-# Extension for StateMachine::AlternateMachine to provide render blocks inside a state definition
-class StateMachine::AlternateMachine
+# Extension for StateMachine::StateContext to provide render blocks inside a state definition
+class StateMachine::StateContext
+  include StateMachine::MatcherHelpers
+
   attr_accessor :flow_stacks
 
-  def response(state_name = nil, &blk)
-    if @from_state
-      @queued_sends << [[:response, @from_state], blk]
-    else
-      @queued_sends << [[:response, state_name], blk]
-    end
-  end
-
-  def before(scope, options = {}, &blk)
-    if @from_state
-      @queued_sends << [[:before, @from_state, scope, options], blk]
-    end
-  end
-
-  def after(scope, options = {}, &blk)
-    if @from_state
-      @queued_sends << [[:after, @from_state, scope, options], blk]
-    end
-  end
-
-  def actor(name, &blk)
-    (class << self; self; end).send(:define_method, name.to_sym) do |event_name, options|
-      event_name = :"#{name}_#{event_name}"
-      event(event_name, options)
-    end
-    @queued_sends << [[:flow_actors, name], blk]
-  end
-
-  def event_with_blocks(*args, &blk)
-    options = args.extract_options!
-
+  def event(name, options = {})
     if flow_stacks && flow_stacks.any?
       options = flow_stacks.inject(options)
     end
 
-    event_without_blocks(*args.push(options), &blk)
+    transition(options.update(:on => name))
   end
 
-  alias_method :event_without_blocks, :event
-  alias_method :event, :event_with_blocks
+  def response(&blk)
+    machine.response(state.name, &blk)
+  end
+
+  def before(scope, options = {}, &blk)
+    machine.before(state.name, scope, options, &blk)
+  end
+
+  def after(scope, options = {}, &blk)
+    machine.after(state.name, scope, options, &blk)
+  end
 
   def flow_if(conditional, &blk)
     self.flow_stacks ||= CallCenter::ConditionalStack.new
