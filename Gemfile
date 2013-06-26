@@ -13,3 +13,4 @@ gem 'minitest-reporters', :platform => [:ruby_19, :ruby_20] # https://github.com
 gem 'guard-shell'
 gem 'appraisal'
 gem 'bump'
+gem 'simplecov', :require => false, :group => :test

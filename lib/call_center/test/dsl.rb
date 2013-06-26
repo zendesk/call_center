@@ -31,7 +31,8 @@ module CallCenter
               html_document.root
             end
 
-            alias_method_chain :response_from_page_or_rjs, :body
+            alias_method :response_from_page_or_rjs_without_body, :response_from_page_or_rjs
+            alias_method :response_from_page_or_rjs, :response_from_page_or_rjs_with_body
           end
         end
       end

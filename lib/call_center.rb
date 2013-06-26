@@ -37,10 +37,7 @@ module CallCenter
   module ClassMethods
     attr_accessor :call_flow_state_machine_name
 
-    # Calls state_machine ... with :syntax => :alternate
     def call_flow(*args, &blk)
-      options = args.last.is_a?(Hash) ? args.pop : {}
-      args << options.merge(:syntax => :alternate)
       state_machine_name = args.first || :state
       if state_machine = CallCenter.cached(self, state_machine_name)
         state_machine = state_machine.duplicate_to(self)

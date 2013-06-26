@@ -1,4 +1,9 @@
 require 'bundler/setup'
+require 'simplecov'
+SimpleCov.start do
+  add_filter "lib/call_center/core_ext/object_instance_exec.rb"
+  command_name "Unit Tests (#{File.basename(ENV['BUNDLE_GEMFILE'])})"
+end if ENV['COVERAGE']
 require 'test/unit'
 require 'shoulda'
 require 'mocha'
