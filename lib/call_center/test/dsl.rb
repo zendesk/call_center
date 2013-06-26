@@ -26,10 +26,13 @@ module CallCenter
             HTML::Document.new(CGI.unescapeHTML(@body))
           end
 
-          def response_from_page_or_rjs_with_body
-            html_document.root
+          if ActionPack::VERSION::STRING < "3.2.0"
+            def response_from_page_or_rjs_with_body
+              html_document.root
+            end
+
+            alias_method_chain :response_from_page_or_rjs, :body
           end
-          alias_method_chain :response_from_page_or_rjs, :body
         end
       end
 
