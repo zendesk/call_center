@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    call_center (1.0.3)
+    call_center (1.0.4)
       builder
       hsume2-state_machine (~> 1.0.5)
 
