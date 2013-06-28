@@ -33,6 +33,8 @@ module CallCenter
 
             alias_method :response_from_page_or_rjs_without_body, :response_from_page_or_rjs
             alias_method :response_from_page_or_rjs, :response_from_page_or_rjs_with_body
+          elsif instance_methods.include?(:response_from_page_with_rjs) # prototype-rails hacks we do not want
+            alias_method :response_from_page, :response_from_page_without_rjs
           end
         end
       end
