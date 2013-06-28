@@ -32,6 +32,8 @@ module CallCenter
             end
 
             alias_method_chain :response_from_page_or_rjs, :body
+          elsif instance_methods.include?(:response_from_page_with_rjs) # prototype-rails hacks we do not want
+            alias_method :response_from_page, :response_from_page_without_rjs
           end
         end
       end
