@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    call_center (2.0.0)
+    call_center (2.0.1)
       builder
       state_machine (~> 1.2.0)
 
