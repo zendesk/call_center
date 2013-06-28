@@ -1,4 +1,4 @@
-Gem::Specification.new "call_center", "1.0.4" do |s|
+Gem::Specification.new "call_center", "1.0.5" do |s|
   s.homepage = "http://github.com/zendesk/call_center"
   s.summary = %Q{Support for describing call center workflows}
   s.description = %Q{Support for describing call center workflows}
